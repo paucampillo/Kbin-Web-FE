@@ -15,7 +15,7 @@ function App() {
     
     <Router>
       
-       <MainLayout>
+      <MainLayout>
       <div className="App">
         
         <Switch>
