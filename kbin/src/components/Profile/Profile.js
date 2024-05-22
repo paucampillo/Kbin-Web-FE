@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { getProfile } from '../../services/api';
 import { useParams } from 'react-router-dom';
+import "../../App.js"
+  
+
   
   const Profile = () => {
     const { userId } = useParams();
@@ -21,57 +24,47 @@ import { useParams } from 'react-router-dom';
   
     if (error) return <div>Error: {error}</div>;
     if (!profile) return <div>Loading...</div>;
-  
+    
+    const avatarUrl = 'http://127.0.0.1:8000'+profile.profile.avatar; 
+    const coverUrl = 'http://127.0.0.1:8000'+profile.profile.cover; 
+    
     return (
-      <div>
-        <h1>{profile.user.username}'s Profile</h1>
-        <h2>Profile Details</h2>
-        <div>Bio: {profile.profile.bio}</div>
-        <div>Avatar: <img src={profile.profile.avatar} alt="Avatar" /></div>
-        <div>Cover: <img src={profile.profile.cover} alt="Cover" /></div>
-  
-        <h2>Threads</h2>
-        <ul>
-          {profile.threads.map(thread => (
-            <li key={thread.id}>
-              <h3>{thread.title}</h3>
-              <div>URL: {thread.url}</div>
-              <div>Body: {thread.body}</div>
-              <div>Created At: {thread.created_at}</div>
-              <div>Updated At: {thread.updated_at}</div>
-              {/* Add more details as needed */}
-            </li>
-          ))}
-        </ul>
-  
-        <h2>Comments</h2>
-        <ul>
-          {profile.comments.map(comment => (
-            <li key={comment.id}>
-              <div>Body: {comment.body}</div>
-              <div>Created At: {comment.created_at}</div>
-              <div>Updated At: {comment.updated_at}</div>
-              {/* Add more details as needed */}
-            </li>
-          ))}
-        </ul>
-  
-        <h2>Boosts</h2>
-        <ul>
-          {profile.boosts.map(boost => (
-            <li key={boost.id}>
-              <h3>{boost.title}</h3>
-              <div>URL: {boost.url}</div>
-              <div>Body: {boost.body}</div>
-              <div>Created At: {boost.created_at}</div>
-              <div>Updated At: {boost.updated_at}</div>
-              {/* Add more details as needed */}
-            </li>
-          ))}
-        </ul>
-  
-        {/* Add more sections as needed */}
-      </div>
+      <div className="theme--dark" data-controller="kbin notifications" data-turbo="false">
+      <main>
+        <div id="middle" className="page-user page-user-overview">
+          <div className="kbin-container">
+            <main id="main" data-controller="lightbox timeago">
+              <div className="section section--top">
+                <div className="user-box">
+                  <div className="with-cover with-avatar">
+                    <img height="220" width="100%" className="cover" src={coverUrl} alt="Cover" />
+                    <div className="user-main" id="content">
+                      <div>
+                        <div className="row">
+                          <figure>
+                            <img
+                              width="100"
+                              height="100"
+                              style={{ maxWidth: '100px', maxHeight: '100px' }}
+                              src={avatarUrl}
+                              alt="Avatar"
+                            />
+                          </figure>
+                          <h1>{profile.user.username}</h1>
+                          <small>{profile.user.email}</small>
+                          <small>{profile.profile.bio}</small>
+                          <small>API-Key: Token {profile.key}</small>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </main>
+          </div>
+        </div>
+      </main>
+    </div>
     );
   };
   

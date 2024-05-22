@@ -5,6 +5,7 @@ import MagazineList from './components/Magazines/MagazineList';
 import ThreadList from './components/Threads/ThreadList';
 import Profile from './components/Profile/Profile';
 import EditProfile from './components/Profile/EditProfile';
+import './App.css';
 
 function App() {
   return (
