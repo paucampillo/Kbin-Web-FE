@@ -10,7 +10,7 @@ const Thread = ({ thread, user }) => {
                 </a>
                 {thread.is_link && (
                     <span className="entry__domain">
-                    (
+                    {" "}(
                     <a href={thread.url} rel="nofollow noopener noreferrer">
                         {thread.url}
                     </a>
@@ -26,18 +26,18 @@ const Thread = ({ thread, user }) => {
             </a>
             ,
             <time className="timeago" title={thread.created_at}>
-            {thread.time_since_creation} ago
+            {" "}{thread.time_since_creation}
             </time>
-            {thread.time_since_update < thread.time_since_creation && (
+            { thread.is_edited && (
             <span className="edited">
-                (edited
+                {" "}(edited {" "}
                 <time className="timeago" title={thread.updated_at}>
-                {thread.time_since_update} ago
+                {thread.time_since_update}
                 </time>
                 )
             </span>
             )}
-            to
+            {" "}to
             <a href={`/magazine/${thread.magazine.id}`} className="magazine-inline">
                 {thread.magazine.name}
             </a>

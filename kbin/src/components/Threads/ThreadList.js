@@ -15,20 +15,22 @@ const ThreadList = () => {
   const [order, setOrder] = useState('points'); // points, created_at, num_comments
   const [filter, setFilter] = useState('all');  // all, links, threads
   const [threads, setThreads] = useState([]); // Estado para almacenar los threads obtenidos
-  const [loading, setLoading] = useState(true); // Estado para indicar si los datos están siendo cargados
   const [error, setError] = useState(null); // Estado para manejar errores
 
   useEffect(() => { // Efecto secundario para obtener los threads
     const fetchThreads = async () => {
-      setLoading(true);
       setError(null); // Resetea cualquier error previo
       try {
         const data = await getThreads(filter, order); // Llama a la API con los parámetros actuales
-        setThreads(data); // Actualiza el estado de los threads con los datos obtenidos
+        const threadsWithTime = data.map(thread => ({
+          ...thread,
+          time_since_creation: timeElapsed(thread.created_at),
+          time_since_update: timeElapsed(thread.updated_at),
+          is_edited: isEdited(thread.created_at, thread.updated_at),
+        }));
+        setThreads(threadsWithTime); // Actualiza el estado de los threads con los datos obtenidos
       } catch (error) {
         setError('Failed to fetch threads');
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -69,5 +71,30 @@ const ThreadList = () => {
     </div>
   );
 }
+
+const timeElapsed = (createdAt) => {
+  const now = new Date();
+  const createdDate = new Date(createdAt);
+  const timeDiff = Math.abs(now - createdDate);
+
+  const seconds = Math.floor(timeDiff / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+
+  if (days > 0) {
+    return `${days} day${days > 1 ? 's' : ''} ago`;
+  } else if (hours > 0) {
+    return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+  } else if (minutes > 0) {
+    return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+  } else {
+    return `${seconds} second${seconds > 1 ? 's' : ''} ago`;
+  }
+};
+
+const isEdited = (createdAt, updatedAt) => {
+  return new Date(createdAt).getTime() !== new Date(updatedAt).getTime();
+};
 
 export default ThreadList;
