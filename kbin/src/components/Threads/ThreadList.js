@@ -35,10 +35,6 @@ const ThreadList = () => {
     fetchThreads(); // Ejecuta la función para obtener los threads
   }, [order, filter]); // Dependencias: vuelve a ejecutar el efecto si `order` o `filter` cambian
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
   if (error) {
     return <div>{error}</div>;
   }
