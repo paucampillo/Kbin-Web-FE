@@ -2,13 +2,14 @@
 import axios from 'axios'
 
 const BASE_URL = 'http://127.0.0.1:8000/api';
+const API_KEY = 'fbab3acd737a2daa988cd51722705d314a24798a';
 
 // Function to fetch comments for a thread
 export const getComments = async (threadId, orderBy = 'newest') => {
   try {
     const response = await fetch(`${BASE_URL}/comments/?thread_id=${threadId}&order_by=${orderBy}`, {
       headers: {
-        'Authorization': 'Token e6e4914161060a224ef9e8a52bf0f5440b31f01d', // Replace YOUR_API_KEY with actual API key
+        'Authorization': `Token ${API_KEY}`, // Replace YOUR_API_KEY with actual API key
       },
     });
     if (!response.ok) {
@@ -29,7 +30,7 @@ export const createComment = async (commentData) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': ' Token e6e4914161060a224ef9e8a52bf0f5440b31f01d', // Replace YOUR_API_KEY with actual API key
+        'Authorization': `Token ${API_KEY}`, // Replace YOUR_API_KEY with actual API key
       },
       body: JSON.stringify(commentData),
     });
@@ -49,7 +50,7 @@ export const getMagazines = async (orderBy = 'subscriptions_count') => {
   try {
     const response = await fetch(`${BASE_URL}/magazines/?orderby=${orderBy}`, {
       headers: {
-        'Authorization': ' Token e6e4914161060a224ef9e8a52bf0f5440b31f01d', // Replace YOUR_API_KEY with actual API key
+        'Authorization': `Token ${API_KEY}`, // Replace YOUR_API_KEY with actual API key
       },
     });
     if (!response.ok) {
@@ -70,7 +71,7 @@ export const createMagazine = async (magazineData) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': ' Token e6e4914161060a224ef9e8a52bf0f5440b31f01d', // Replace YOUR_API_KEY with actual API key
+        'Authorization': `Token ${API_KEY}`, // Replace YOUR_API_KEY with actual API key
       },
       body: JSON.stringify(magazineData),
     });
@@ -91,7 +92,7 @@ export const subscribeToMagazine = async (magazineId) => {
     const response = await fetch(`${BASE_URL}/magazines/${magazineId}/subscriptions/`, {
       method: 'POST',
       headers: {
-        'Authorization': ' Token e6e4914161060a224ef9e8a52bf0f5440b31f01d', // Replace YOUR_API_KEY with actual API key
+        'Authorization': `Token ${API_KEY}`, // Replace YOUR_API_KEY with actual API key
       },
     });
     if (!response.ok) {
@@ -109,7 +110,7 @@ export const unsubscribeFromMagazine = async (magazineId) => {
     const response = await fetch(`${BASE_URL}/magazines/${magazineId}/subscriptions/`, {
       method: 'DELETE',
       headers: {
-        'Authorization': ' Token e6e4914161060a224ef9e8a52bf0f5440b31f01d', // Replace YOUR_API_KEY with actual API key
+        'Authorization': `Token ${API_KEY}`, // Replace YOUR_API_KEY with actual API key
       },
     });
     if (!response.ok) {
@@ -125,9 +126,11 @@ export const unsubscribeFromMagazine = async (magazineId) => {
 export const getThreads = async (filter = 'all', orderBy = 'created_at') => {
   try {
     const response = await fetch(`${BASE_URL}/threads/?filter=${filter}&order_by=${orderBy}`, {});
+    
     if (!response.ok) {
       throw new Error('Failed to fetch threads');
     }
+
     const data = await response.json();
     return data;
   } catch (error) {
@@ -143,17 +146,91 @@ export const createThread = async (threadData) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': ' Token e6e4914161060a224ef9e8a52bf0f5440b31f01d', // Replace YOUR_API_KEY with actual API key
+        'Authorization': `Token ${API_KEY}`, // Replace YOUR_API_KEY with actual API key
       },
       body: JSON.stringify(threadData),
     });
+
     if (!response.ok) {
       throw new Error('Failed to create thread');
     }
+
     const data = await response.json();
     return data;
   } catch (error) {
     console.error('Error creating thread:', error);
+    throw error;
+  }
+};
+
+
+// Function boost a thread
+export const boostThread = async (threadId) => {
+  try {
+    const response = await fetch(`${BASE_URL}/threads/${threadId}/boosts/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${API_KEY}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to boost thread');
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error boosting thread:', error);
+    throw error;
+  }
+};
+
+
+// Function to like a thread
+export const likeThread = async (threadId) => {
+  try {
+    const response = await fetch(`${BASE_URL}/threads/${threadId}/likes/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${API_KEY}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to like thread');
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error liking thread:', error);
+    throw error;
+  }
+};
+
+
+// Function to dislike a thread
+export const dislikeThread = async (threadId) => {
+  try {
+    const response = await fetch(`http://127.0.0.1:8000/threads/${threadId}/dislikes/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${API_KEY}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to dislike thread');
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error disliking thread:', error);
     throw error;
   }
 };
@@ -164,7 +241,7 @@ export const getMyProfile = async () => {
   try {
     const response = await fetch(`${BASE_URL}/profile/myprofile/`, {
       headers: {
-        'Authorization': 'Token e6e4914161060a224ef9e8a52bf0f5440b31f01d', // Replace YOUR_API_KEY with actual API key
+        'Authorization': `Token ${API_KEY}`, // Replace YOUR_API_KEY with actual API key
       },
     });
     if (!response.ok) {
@@ -196,7 +273,7 @@ export const updateProfile = async (userId, profileData) => {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': ' Token e6e4914161060a224ef9e8a52bf0f5440b31f01d', // Replace YOUR_API_KEY with actual API key
+        'Authorization': `Token ${API_KEY}`, // Replace YOUR_API_KEY with actual API key
       },
       body: JSON.stringify(profileData),
     });

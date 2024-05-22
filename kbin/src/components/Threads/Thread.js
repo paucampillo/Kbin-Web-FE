@@ -1,6 +1,37 @@
 import React from 'react';
+import { boostThread, likeThread, dislikeThread } from '../../services/api';
 
 const Thread = ({ thread, user }) => {
+    const handleBoost = async () => {
+        try {
+            await boostThread(thread.id);
+            // Aquí puedes actualizar el estado o volver a obtener los datos si es necesario
+            console.log('Thread boosted successfully');
+            } catch (error) {
+            console.error('Error boosting thread:', error);
+            }
+        };
+
+    const handleLike = async () => {
+        try {
+            await likeThread(thread.id);
+            // Aquí puedes actualizar el estado o volver a obtener los datos si es necesario
+            console.log('Thread liked successfully');
+        } catch (error) {
+            console.error('Error liking thread:', error);
+        }
+        };
+    
+    const handleDislike = async () => {
+        try {
+            await dislikeThread(thread.id);
+            // Aquí puedes actualizar el estado o volver a obtener los datos si es necesario
+            console.log('Thread disliked successfully');
+        } catch (error) {
+            console.error('Error disliking thread:', error);
+        }
+    };
+
     return (
         <article className="entry section subject no-image">
         <header>
@@ -44,21 +75,15 @@ const Thread = ({ thread, user }) => {
         </aside>
 
         <aside className="vote">
-        <form action={`/api/threads/${thread.id}/vote`} method="post" className="vote__up">
-            <input type="hidden" name="vote_type" value="like" />
-            <button type="submit" name="like_button" title="Favorite" aria-label="Favorite">
+            <button className="vote__up" onClick={handleLike} title="Favorite" aria-label="Favorite">
                 <span>{thread.num_likes}</span>
-                <span role="img" aria-label="thumb-up">👍</span>
+                <span role="img" aria-label="thumbs up">👍</span>
             </button>
-        </form>
-
-        <form action={`/api/threads/${thread.id}/vote`} method="post" className="vote__down">
-            <input type="hidden" name="vote_type" value="dislike" />
-            <button type="submit" name="dislike_button" title="Reduce" aria-label="Reduce">
+        
+            <button className="vote__down" onClick={handleDislike} title="Reduce" aria-label="Reduce">
                 <span>{thread.num_dislikes}</span>
-                <span role="img" aria-label="thumb-down">👎</span>
+                <span role="img" aria-label="thumbs down">👎</span>
             </button>
-        </form>
         </aside>
 
         <footer>
@@ -69,12 +94,9 @@ const Thread = ({ thread, user }) => {
             </a>
             </li>
             <li>
-            <form action={`/api/threads/${thread.id}/boost`} method="post">
-                <input type="hidden" name="thread_id" value={thread.id} />
-                <button className="boost-link stretched-link" type="submit">
-                boost {thread.num_points > 0 && <span>({thread.num_points})</span>}
+                <button onClick={handleBoost} className="boost-link stretched-link" type="button">
+                    boost {thread.num_points > 0 && <span>({thread.num_points})</span>}
                 </button>
-            </form>
             </li>
             {thread.author.id === user.id && (
             <>
