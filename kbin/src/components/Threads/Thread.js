@@ -68,7 +68,7 @@ const Thread = ({ thread, user }) => {
                 )
             </span>
             )}
-            {" "}to
+            {" "}to{" "}
             <a href={`/magazine/${thread.magazine.id}`} className="magazine-inline">
                 {thread.magazine.name}
             </a>
