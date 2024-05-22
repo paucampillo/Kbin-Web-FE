@@ -5,12 +5,19 @@ import MagazineList from './components/Magazines/MagazineList';
 import ThreadList from './components/Threads/ThreadList';
 import Profile from './components/Profile/Profile';
 import EditProfile from './components/Profile/EditProfile';
+import MainLayout from './components/Layouts/MainLayout'
 import './App.css';
 
 function App() {
+  document.body.classList.add('theme--dark')
+  document.head.classList.add('header')
   return (
+    
     <Router>
+      
+       <MainLayout>
       <div className="App">
+        
         <Switch>
           <Route path="/comments" component={CommentList} />
           <Route path="/magazines" component={MagazineList} />
@@ -19,6 +26,7 @@ function App() {
           <Route path="/profile/:userId" component={Profile} />
         </Switch>
       </div>
+      </MainLayout>      
     </Router>
   );
 }
