@@ -124,11 +124,7 @@ export const unsubscribeFromMagazine = async (magazineId) => {
 // Function to fetch threads
 export const getThreads = async (filter = 'all', orderBy = 'created_at') => {
   try {
-    const response = await fetch(`${BASE_URL}/threads/?filter=${filter}&order_by=${orderBy}`, {
-      headers: {
-        'Authorization': ' Token e6e4914161060a224ef9e8a52bf0f5440b31f01d', // Replace YOUR_API_KEY with actual API key
-      },
-    });
+    const response = await fetch(`${BASE_URL}/threads/?filter=${filter}&order_by=${orderBy}`, {});
     if (!response.ok) {
       throw new Error('Failed to fetch threads');
     }
