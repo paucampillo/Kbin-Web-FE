@@ -6,6 +6,8 @@ import ThreadList from './components/Threads/ThreadList';
 import Profile from './components/Profile/Profile';
 import EditProfile from './components/Profile/EditProfile';
 import MainLayout from './components/Layouts/MainLayout'
+import MagazineForm from './components/Magazines/MagazineForm'; // Ajusta la ruta según tu estructura de proyecto
+
 import './App.css';
 
 function App() {
@@ -19,11 +21,13 @@ function App() {
       <div className="App">
         
         <Switch>
+          <Route path="/magazines/new" component={MagazineForm} />
           <Route path="/comments" component={CommentList} />
           <Route path="/magazines" component={MagazineList} />
           <Route path="/threads" component={ThreadList} />
           <Route path="/profile/edit" component={EditProfile} />
           <Route path="/profile/:userId" component={Profile} />
+          
         </Switch>
       </div>
       </MainLayout>      

@@ -1,8 +1,9 @@
 // src/services/api.js
 import axios from 'axios'
+import Cookies from 'js-cookie';
 
 const BASE_URL = 'http://127.0.0.1:8000/api';
-const API_KEY = 'fbab3acd737a2daa988cd51722705d314a24798a';
+const API_KEY = 'f42b83c128488292990ec30481f90349ffd4d825';
 
 // Function to fetch comments for a thread
 export const getComments = async (threadId, orderBy = 'newest') => {
@@ -67,11 +68,13 @@ export const getMagazines = async (orderBy = 'subscriptions_count') => {
 // Function to create a magazine
 export const createMagazine = async (magazineData) => {
   try {
+    const csrfToken = Cookies.get('csrftoken');
     const response = await fetch(`${BASE_URL}/magazines/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Token ${API_KEY}`, // Replace YOUR_API_KEY with actual API key
+        'Authorization': `Token ${API_KEY}`, // Reemplaza con tu clave de API
+        'X-CSRFToken': csrfToken // Agrega el token CSRF
       },
       body: JSON.stringify(magazineData),
     });
