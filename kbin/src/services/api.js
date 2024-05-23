@@ -235,8 +235,6 @@ export const likeThread = async (threadId) => {
       throw new Error('Failed to like thread');
     }
 
-    const data = await response.json();
-    return data;
   } catch (error) {
     console.error('Error liking thread:', error);
     throw error;
@@ -259,8 +257,6 @@ export const unlikeThread = async (threadId) => {
       throw new Error('Failed to like thread');
     }
 
-    const data = await response.json();
-    return data;
   } catch (error) {
     console.error('Error liking thread:', error);
     throw error;
@@ -271,7 +267,7 @@ export const unlikeThread = async (threadId) => {
 // Function to dislike a thread
 export const dislikeThread = async (threadId) => {
   try {
-    const response = await fetch(`http://127.0.0.1:8000/threads/${threadId}/dislikes/`, {
+    const response = await fetch(`${BASE_URL}/threads/${threadId}/dislikes/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -283,8 +279,6 @@ export const dislikeThread = async (threadId) => {
       throw new Error('Failed to dislike thread');
     }
 
-    const data = await response.json();
-    return data;
   } catch (error) {
     console.error('Error disliking thread:', error);
     throw error;
@@ -295,7 +289,7 @@ export const dislikeThread = async (threadId) => {
 // Function to delete dislike
 export const undislikeThread = async (threadId) => {
   try {
-    const response = await fetch(`http://127.0.0.1:8000/threads/${threadId}/dislikes/`, {
+    const response = await fetch(`${BASE_URL}/threads/${threadId}/dislikes/`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -307,8 +301,6 @@ export const undislikeThread = async (threadId) => {
       throw new Error('Failed to dislike thread');
     }
 
-    const data = await response.json();
-    return data;
   } catch (error) {
     console.error('Error disliking thread:', error);
     throw error;

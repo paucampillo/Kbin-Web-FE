@@ -42,10 +42,10 @@ const Thread = ({ thread, user, reloadThreads }) => {
         try {
             if (thread.user_has_disliked) {
                 await undislikeThread(thread.id);
-                console.log('Thread unliked successfully');
+                console.log('Thread undisliked successfully');
             } else {
                 await dislikeThread(thread.id);
-                console.log('Thread liked successfully');
+                console.log('Thread disliked successfully');
             }
             reloadThreads(); // Recargar threads después de dislike/undislike
         } catch (error) {
