@@ -2,50 +2,51 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import "../../App.css"
 
-const MainLayout = ({ children, user}) => {
+/* eslint-disable jsx-a11y/anchor-is-valid */
+const MainLayout = ({ children, user }) => {
   return (
     <div>
-     <header id="header" className="header">
-    <div className="kbin-container">
-      <nav className="head-nav">
-        <menu className="head-nav__menu">
-          <li>
-            <Link to="/threads" className={window.location.pathname === '/threads' || window.location.pathname === '/' ? 'active' : ''}>
-                Threads
-            </Link>
-          </li>
-          <li>
-            <Link to="/magazines" className={window.location.pathname === '/magazines' ? 'active' : ''}>
-                Magazines
-            </Link>
-          </li>
-        </menu>
-      </nav>
-      <menu>
-        <li>
-            <Link to="/search">
+      <header id="header" className="header">
+        <div className="kbin-container">
+          <nav className="head-nav">
+            <menu className="head-nav__menu">
+              <li>
+                <Link to="/threads" className={window.location.pathname === '/threads' || window.location.pathname === '/' ? 'active' : ''}>
+                  Threads
+                </Link>
+              </li>
+              <li>
+                <Link to="/magazines" className={window.location.pathname === '/magazines' ? 'active' : ''}>
+                  Magazines
+                </Link>
+              </li>
+            </menu>
+          </nav>
+          <menu>
+            <li>
+              <Link to="/search">
                 <div style={{ transform: 'rotate(270deg)' }}>
                   <big>⌕</big>
                 </div>
               </Link>
-        </li>
-        <li className="dropdown">
-            <a href="#">
+            </li>
+            <li className="dropdown">
+              <a href="#">
                 <big><big>+</big></big>
               </a>
-          <ul className="dropdown__menu">
-            <li>
-                <Link to="/threads/new">Add New Thread</Link>
+              <ul className="dropdown__menu">
+                <li>
+                  <Link to="/threads/new">Add New Thread</Link>
+                </li>
+                <li>
+                  <Link to="/links/new">Add New Link</Link>
+                </li>
+                <li>
+                  <Link to="/magazines/new">Add New Magazine</Link>
+                </li>
+              </ul>
             </li>
-            <li>
-                <Link to="/links/new">Add New Link</Link>
-            </li>
-            <li>
-                <Link to="/magazines/new">Add New Magazine</Link>
-            </li>
-          </ul>
-        </li>
-        <li className="dropdown">
+            <li className="dropdown">
               {!user ? (
                 <Link to="/login">Log in with API-KEY</Link>
               ) : (
@@ -65,9 +66,9 @@ const MainLayout = ({ children, user}) => {
                 </>
               )}
             </li>
-      </menu>
-    </div>
-  </header>
+          </menu>
+        </div>
+      </header>
       <main>
         {children}
       </main>

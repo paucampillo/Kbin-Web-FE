@@ -126,7 +126,7 @@ export const unsubscribeFromMagazine = async (magazineId) => {
 export const getThreads = async (filter = 'all', orderBy = 'created_at') => {
   try {
     const response = await fetch(`${BASE_URL}/threads/?filter=${filter}&order_by=${orderBy}`, {});
-    
+
     if (!response.ok) {
       throw new Error('Failed to fetch threads');
     }
@@ -176,13 +176,35 @@ export const boostThread = async (threadId) => {
     });
 
     if (!response.ok) {
+      if (response.status === 409) {
+        throw new Error("The user has already boosted this thread");
+      }
       throw new Error('Failed to boost thread');
     }
 
-    const data = await response.json();
-    return data;
   } catch (error) {
     console.error('Error boosting thread:', error);
+    throw error;
+  }
+};
+
+// Function to unboost a thread
+export const unboostThread = async (threadId) => {
+  try {
+    const response = await fetch(`${BASE_URL}/threads/${threadId}/boosts/`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${API_KEY}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to unboost thread');
+    }
+
+  } catch (error) {
+    console.error('Error unboosting thread:', error);
     throw error;
   }
 };
@@ -257,14 +279,14 @@ export const getMyProfile = async () => {
 
 // Function to fetch profile details for a user
 export const getProfile = async (userId) => {
-    try {
-      console.log(userId)
-      const response = await axios.get(`${BASE_URL}/profile/${userId}/`);
-      return response.data;
-    } catch (error) {
-      throw new Error('Failed to fetch profile');
-    }
-  };
+  try {
+    console.log(userId)
+    const response = await axios.get(`${BASE_URL}/profile/${userId}/`);
+    return response.data;
+  } catch (error) {
+    throw new Error('Failed to fetch profile');
+  }
+};
 
 // Function to update user profile
 export const updateProfile = async (userId, profileData) => {
