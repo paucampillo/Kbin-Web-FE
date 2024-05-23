@@ -123,9 +123,19 @@ export const unsubscribeFromMagazine = async (magazineId) => {
 };
 
 // Function to fetch threads
-export const getThreads = async (filter = 'all', orderBy = 'created_at') => {
+export const getThreads = async (filter = 'all', orderBy = 'created_at', token = false) => {
   try {
-    const response = await fetch(`${BASE_URL}/threads/?filter=${filter}&order_by=${orderBy}`, {});
+    const headers = {
+      'Content-Type': 'application/json',
+    };
+    if (token) {
+      headers['Authorization'] = `Token ${API_KEY}`;
+    }
+
+    const response = await fetch(`${BASE_URL}/threads/?filter=${filter}&order_by=${orderBy}`, {
+      method: 'GET',
+      headers: headers,
+    });
 
     if (!response.ok) {
       throw new Error('Failed to fetch threads');
@@ -234,11 +244,59 @@ export const likeThread = async (threadId) => {
 };
 
 
+// Function to delete like
+export const unlikeThread = async (threadId) => {
+  try {
+    const response = await fetch(`${BASE_URL}/threads/${threadId}/likes/`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${API_KEY}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to like thread');
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error liking thread:', error);
+    throw error;
+  }
+};
+
+
 // Function to dislike a thread
 export const dislikeThread = async (threadId) => {
   try {
     const response = await fetch(`http://127.0.0.1:8000/threads/${threadId}/dislikes/`, {
       method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${API_KEY}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to dislike thread');
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error disliking thread:', error);
+    throw error;
+  }
+};
+
+
+// Function to delete dislike
+export const undislikeThread = async (threadId) => {
+  try {
+    const response = await fetch(`http://127.0.0.1:8000/threads/${threadId}/dislikes/`, {
+      method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Token ${API_KEY}`,

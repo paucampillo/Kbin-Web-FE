@@ -8,6 +8,7 @@ import { getThreads } from '../../services/api';
 const user = {
   id: 1,
   username: 'example_user',
+  isAuthenticated: true,
 };
 
 const ThreadList = () => {
@@ -21,7 +22,7 @@ const ThreadList = () => {
   const fetchThreads = useCallback(async () => {
     setError(null); // Resetea cualquier error previo
     try {
-      const data = await getThreads(filter, order); // Llama a la API con los parámetros actuales
+      const data = await getThreads(filter, order, user.isAuthenticated); // Llama a la API con los parámetros actuales
       const threadsWithTime = data.map(thread => ({
         ...thread,
         time_since_creation: timeElapsed(thread.created_at),

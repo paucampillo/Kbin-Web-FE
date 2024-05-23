@@ -1,7 +1,8 @@
 import React from 'react';
-import { boostThread, unboostThread, likeThread, dislikeThread } from '../../services/api';
+import { boostThread, unboostThread, likeThread, unlikeThread, dislikeThread, undislikeThread } from '../../services/api';
 
 const Thread = ({ thread, user, reloadThreads }) => {
+
     const handleBoost = async () => {
         try {
             await boostThread(thread.id);
@@ -24,19 +25,29 @@ const Thread = ({ thread, user, reloadThreads }) => {
 
     const handleLike = async () => {
         try {
-            await likeThread(thread.id);
-            // Aquí puedes actualizar el estado o volver a obtener los datos si es necesario
-            console.log('Thread liked successfully');
+            if (thread.user_has_liked) {
+                await unlikeThread(thread.id);
+                console.log('Thread unliked successfully');
+            } else {
+                await likeThread(thread.id);
+                console.log('Thread liked successfully');
+            }
+            reloadThreads(); // Recargar threads después de like/unlike
         } catch (error) {
-            console.error('Error liking thread:', error);
+            console.error('Error handling like/unlike:', error);
         }
     };
 
     const handleDislike = async () => {
         try {
-            await dislikeThread(thread.id);
-            // Aquí puedes actualizar el estado o volver a obtener los datos si es necesario
-            console.log('Thread disliked successfully');
+            if (thread.user_has_disliked) {
+                await undislikeThread(thread.id);
+                console.log('Thread unliked successfully');
+            } else {
+                await dislikeThread(thread.id);
+                console.log('Thread liked successfully');
+            }
+            reloadThreads(); // Recargar threads después de dislike/undislike
         } catch (error) {
             console.error('Error disliking thread:', error);
         }
