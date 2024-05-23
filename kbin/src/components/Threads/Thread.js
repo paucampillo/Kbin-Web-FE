@@ -97,12 +97,12 @@ const Thread = ({ thread, user, reloadThreads }) => {
 
             <aside className="vote">
                 <button className="vote__up" onClick={handleLike} title="Favorite" aria-label="Favorite">
-                    <span>{thread.num_likes}</span>
+                    <span style={{ color: thread.user_has_liked ? '#13F30B' : 'inherit' }}>{thread.num_likes}</span>
                     <span role="img" aria-label="thumbs up">👍</span>
                 </button>
 
                 <button className="vote__down" onClick={handleDislike} title="Reduce" aria-label="Reduce">
-                    <span>{thread.num_dislikes}</span>
+                    <span style={{ color: thread.user_has_disliked ? '#F30B0B' : 'inherit' }}>{thread.num_dislikes}</span>
                     <span role="img" aria-label="thumbs down">👎</span>
                 </button>
             </aside>
