@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { getMagazines, subscribeToMagazine, unsubscribeFromMagazine } from '../../services/api';
 
-
 const Magazines = () => {
   const [magazines, setMagazines] = useState([]);
   const [orderby, setOrderby] = useState('subscriptions_count');
-  const [userSubscriptions, setUserSubscriptions] = useState([]);
 
   useEffect(() => {
     const fetchMagazinesData = async () => {
@@ -13,7 +11,6 @@ const Magazines = () => {
         const data = await getMagazines(orderby);
         console.log('Data from getfaaa:', data); // Print data to console
         setMagazines(data);
-        
       } catch (error) {
         console.error('Error fetching magazines:', error);
       }
@@ -31,7 +28,6 @@ const Magazines = () => {
       }
       const data = await getMagazines(orderby);
       setMagazines(data);
-      
     } catch (error) {
       console.error(`Error ${action}ing magazine:`, error);
     }
@@ -46,7 +42,6 @@ const Magazines = () => {
             orderby={orderby}
             setOrderby={setOrderby}
             handleSubscription={handleSubscription}
-            userSubscriptions={userSubscriptions}
           />
         </div>
       </div>
@@ -54,7 +49,7 @@ const Magazines = () => {
   );
 };
 
-const MagazineTable = ({ magazines, orderby, setOrderby, handleSubscription, userSubscriptions }) => {
+const MagazineTable = ({ magazines, orderby, setOrderby, handleSubscription }) => {
   const handleOrderbyChange = (field) => {
     setOrderby(field);
   };
@@ -72,7 +67,6 @@ const MagazineTable = ({ magazines, orderby, setOrderby, handleSubscription, use
               <MagazineTableBody
                 magazines={magazines}
                 handleSubscription={handleSubscription}
-                userSubscriptions={userSubscriptions}
               />
             </table>
           </div>
@@ -111,7 +105,7 @@ const MagazineTableHeader = ({ orderby, handleOrderbyChange }) => {
   );
 };
 
-const MagazineTableBody = ({ magazines, handleSubscription, userSubscriptions }) => {
+const MagazineTableBody = ({ magazines, handleSubscription }) => {
   return (
     <tbody>
       {magazines.map((magazine) => (
@@ -131,7 +125,7 @@ const MagazineTableBody = ({ magazines, handleSubscription, userSubscriptions })
               <MagazineSubscriptionForm
                 magazineId={magazine.id}
                 handleSubscription={handleSubscription}
-                userSubscriptions={userSubscriptions}
+                isSubscribed={magazine.user_has_subscribed}
               />
             </aside>
           </td>
@@ -141,9 +135,7 @@ const MagazineTableBody = ({ magazines, handleSubscription, userSubscriptions })
   );
 };
 
-const MagazineSubscriptionForm = ({ magazineId, handleSubscription, userSubscriptions }) => {
-  const isSubscribed = userSubscriptions.includes(magazineId);
-
+const MagazineSubscriptionForm = ({ magazineId, handleSubscription, isSubscribed }) => {
   const handleSubmit = (e, action) => {
     e.preventDefault();
     handleSubscription(magazineId, action);

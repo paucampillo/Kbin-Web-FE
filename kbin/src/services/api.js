@@ -3,7 +3,7 @@ import axios from 'axios'
 import Cookies from 'js-cookie';
 
 const BASE_URL = 'http://127.0.0.1:8000/api';
-const API_KEY = '9d3041dbfd20214eb53e11adfabd30d1b6a519ac';
+const API_KEY = '8ae00cc42060e8f25814474f6a47ed7d2c865461';
 
 // Function to fetch comments for a thread
 export const getComments = async (threadId, orderBy = 'newest') => {
