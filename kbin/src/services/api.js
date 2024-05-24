@@ -3,7 +3,7 @@ import axios from 'axios'
 import Cookies from 'js-cookie';
 
 const BASE_URL = 'http://127.0.0.1:8000/api';
-const API_KEY = 'f42b83c128488292990ec30481f90349ffd4d825';
+const API_KEY = '9d3041dbfd20214eb53e11adfabd30d1b6a519ac';
 
 // Function to fetch comments for a thread
 export const getComments = async (threadId, orderBy = 'newest') => {
@@ -51,13 +51,16 @@ export const getMagazines = async (orderBy = 'subscriptions_count') => {
   try {
     const response = await fetch(`${BASE_URL}/magazines/?orderby=${orderBy}`, {
       headers: {
-        'Authorization': `Token ${API_KEY}`, // Replace YOUR_API_KEY with actual API key
+        'Authorization': `Token ${API_KEY}`,
+        'Content-Type': 'application/json',
       },
     });
     if (!response.ok) {
       throw new Error('Failed to fetch magazines');
     }
     const data = await response.json();
+    
+    console.log('Data from getMagazinesdddddddddd:', data); // Print data to console
     return data;
   } catch (error) {
     console.error('Error fetching magazines:', error);
@@ -95,7 +98,8 @@ export const subscribeToMagazine = async (magazineId) => {
     const response = await fetch(`${BASE_URL}/magazines/${magazineId}/subscriptions/`, {
       method: 'POST',
       headers: {
-        'Authorization': `Token ${API_KEY}`, // Replace YOUR_API_KEY with actual API key
+        'Authorization': `Token ${API_KEY}`,
+        'Content-Type': 'application/json',
       },
     });
     if (!response.ok) {
@@ -113,7 +117,8 @@ export const unsubscribeFromMagazine = async (magazineId) => {
     const response = await fetch(`${BASE_URL}/magazines/${magazineId}/subscriptions/`, {
       method: 'DELETE',
       headers: {
-        'Authorization': `Token ${API_KEY}`, // Replace YOUR_API_KEY with actual API key
+        'Authorization': `Token ${API_KEY}`,
+        'Content-Type': 'application/json',
       },
     });
     if (!response.ok) {
@@ -135,6 +140,7 @@ export const getThreads = async (filter = 'all', orderBy = 'created_at') => {
     }
 
     const data = await response.json();
+    console.log('threads:', data); // Print data to console
     return data;
   } catch (error) {
     console.error('Error fetching threads:', error);
