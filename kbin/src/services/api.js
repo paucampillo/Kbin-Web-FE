@@ -46,6 +46,46 @@ export const createComment = async (commentData) => {
   }
 };
 
+export const getMagazine = async (magazineId) => {
+  try {
+    const response = await fetch(`${BASE_URL}/magazines/${magazineId}/`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Token ${API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!response.ok) {
+      throw new Error('Failed to fetch magazine details');
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching magazine details:', error);
+    throw error;
+  }
+};
+
+export const getMagazineThreads = async (magazineId, filter = 'all', orderBy = 'created_at') => {
+  try {
+    const response = await fetch(`${BASE_URL}/magazines/${magazineId}/threads/?filter=${filter}&order_by=${orderBy}`, {
+      headers: {
+        'Authorization': `Token ${API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!response.ok) {
+      throw new Error('Failed to fetch magazine details');
+    }
+    const data = await response.json();
+    console.log("getmagazine" + data);
+    return data
+  } catch (error) {
+    console.error('Error fetching magazine:', error);
+    throw error;
+  }
+};
+
 // Function to fetch magazines
 export const getMagazines = async (orderBy = 'subscriptions_count') => {
   try {
@@ -59,8 +99,6 @@ export const getMagazines = async (orderBy = 'subscriptions_count') => {
       throw new Error('Failed to fetch magazines');
     }
     const data = await response.json();
-    
-    console.log('Data from getMagazinesdddddddddd:', data); // Print data to console
     return data;
   } catch (error) {
     console.error('Error fetching magazines:', error);

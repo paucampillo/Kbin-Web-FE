@@ -7,6 +7,7 @@ import Profile from './components/Profile/Profile';
 import EditProfile from './components/Profile/EditProfile';
 import MainLayout from './components/Layouts/MainLayout'
 import MagazineForm from './components/Magazines/MagazineForm'; // Ajusta la ruta según tu estructura de proyecto
+import MagazinePage from './components/Magazines/MagazinePage';
 
 import './App.css';
 
@@ -23,6 +24,7 @@ function App() {
         <Switch>
           <Route path="/magazines/new" component={MagazineForm} />
           <Route path="/comments" component={CommentList} />
+          <Route path="/magazines/:magazineId" component={MagazinePage} /> {/* Nueva ruta para magazine */}
           <Route path="/magazines" component={MagazineList} />
           <Route path="/threads" component={ThreadList} />
           <Route path="/profile/edit" component={EditProfile} />
