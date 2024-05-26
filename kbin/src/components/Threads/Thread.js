@@ -1,7 +1,7 @@
 import React from 'react';
 import { boostThread, unboostThread, likeThread, unlikeThread, dislikeThread, undislikeThread } from '../../services/api';
 
-const Thread = ({ thread, user, reloadThreads }) => {
+const Thread = ({ thread, user, reloadThreads, showBody = false }) => {
 
     const handleBoost = async () => {
         try {
@@ -54,7 +54,7 @@ const Thread = ({ thread, user, reloadThreads }) => {
     };
 
     return (
-        <article className="entry section subject no-image">
+        <article className="entry section subject no-image entry--single section--top">
             <header>
                 <h2>
                     <a href={`/thread/${thread.id}`}>
@@ -71,6 +71,14 @@ const Thread = ({ thread, user, reloadThreads }) => {
                     )}
                 </h2>
             </header>
+
+            {showBody && (
+                <div className="entry__body">
+                    <div className="content formatted" style={{}}>
+                        <p>{thread.body}</p>
+                    </div>
+                </div>
+            )}
 
             <aside className="meta entry__meta">
                 <a href={`/profile/${thread.author.id}`} className="user-inline">

@@ -149,6 +149,33 @@ export const getThreads = async (filter = 'all', orderBy = 'created_at', token =
   }
 };
 
+// Function to get a thread
+export const getThread = async (threadId, token = false) => {
+  try {
+    const headers = {
+      'Content-Type': 'application/json',
+    };
+    if (token) {
+      headers['Authorization'] = `Token ${API_KEY}`;
+    }
+
+    const response = await fetch(`${BASE_URL}/threads/${threadId}/`, {
+      method: 'GET',
+      headers: headers,
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch thread');
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching threads:', error);
+    throw error;
+  }
+};
+
 // Function to create a thread
 export const createThread = async (threadData) => {
   try {
