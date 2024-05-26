@@ -2,6 +2,11 @@ import React from 'react';
 import { boostThread, likeThread, dislikeThread } from '../../services/api';
 
 const Thread = ({ thread, user }) => {
+
+    if (!thread || !thread.id) {
+        return null;
+    }
+
     const handleBoost = async () => {
         try {
             await boostThread(thread.id);

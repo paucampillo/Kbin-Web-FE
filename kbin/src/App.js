@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import CommentList from './components/Comments/CommentList';
 import MagazineList from './components/Magazines/MagazineList';
 import ThreadList from './components/Threads/ThreadList';
+import SearchList from './components/Search/SearchList';
+import SearchResults from './components/Search/SearchResults';
 import Profile from './components/Profile/Profile';
 import EditProfile from './components/Profile/EditProfile';
 import MainLayout from './components/Layouts/MainLayout'
@@ -22,6 +24,8 @@ function App() {
           <Route path="/comments" component={CommentList} />
           <Route path="/magazines" component={MagazineList} />
           <Route path="/threads" component={ThreadList} />
+          <Route path="/search" component={SearchList} />
+          <Route path="/search/results" component={SearchResults} />
           <Route path="/profile/edit" component={EditProfile} />
           <Route path="/profile/:userId" component={Profile} />
         </Switch>
