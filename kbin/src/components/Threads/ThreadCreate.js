@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { createThread, getMagazines } from '../../services/api';
-import { useHistory } from 'react-router-dom';
 
 const ThreadCreate = () => {
     const [title, setTitle] = useState('');
     const [body, setBody] = useState('');
     const [magazines, setMagazines] = useState([]);
     const [selectedMagazine, setSelectedMagazine] = useState('');
-    const history = useHistory();
 
     useEffect(() => {
         const fetchMagazines = async () => {
@@ -28,12 +26,12 @@ const ThreadCreate = () => {
         try {
             const newThread = await createThread(threadData);
             console.log('Thread created successfully:', newThread);
-            // Optionally reset the form or redirect the user
+            // Optionally reset the form
             setTitle('');
             setBody('');
             setSelectedMagazine('');
-            // Redirect to the threads list page
-            history.push('/threads');
+            // Redirect to the threads list page and force a full page reload
+            window.location.href = '/threads';
         } catch (error) {
             console.error('Error creating thread:', error);
         }
