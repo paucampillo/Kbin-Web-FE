@@ -29,10 +29,6 @@ function App() {
             <Route path="/magazines" component={MagazineList} />
             <Route path="/profile/edit" component={EditProfile} />
             <Route path="/profile/:userId" component={Profile} />
-            {/* <Route path="/login" component={Login} />
-            <Route path="/search" component={Search} /> */}
-            {/* <Route path="/links/create" component={AddNewLink} />
-            <Route path="/magazines/create" component={AddNewMagazine} /> */}
           </Switch>
 
         </div>
