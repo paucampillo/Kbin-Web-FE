@@ -7,6 +7,7 @@ import Profile from './components/Profile/Profile';
 import EditProfile from './components/Profile/EditProfile';
 import MainLayout from './components/Layouts/MainLayout';
 import SpecificThread from './components/Threads/SpecificThread';
+import ThreadCreate from './components/Threads/ThreadCreate';
 import './App.css';
 
 function App() {
@@ -21,17 +22,13 @@ function App() {
 
           <Switch>
             <Route exact path="/" component={ThreadList} />
-            <Route path="/threads" component={ThreadList} />
+            <Route exact path="/threads" component={ThreadList} />
+            <Route path="/threads/new" component={ThreadCreate} />
             <Route path="/thread/:thread_id" component={SpecificThread} />
             <Route path="/comments" component={CommentList} />
             <Route path="/magazines" component={MagazineList} />
             <Route path="/profile/edit" component={EditProfile} />
             <Route path="/profile/:userId" component={Profile} />
-            {/* <Route path="/login" component={Login} />
-            <Route path="/search" component={Search} />
-            <Route path="/threads/create" component={AddNewThread} />
-            <Route path="/links/create" component={AddNewLink} />
-            <Route path="/magazines/create" component={AddNewMagazine} /> */}
           </Switch>
 
         </div>

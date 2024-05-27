@@ -1,6 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import "../../App.css"
+import "../../App.css";
 
 /* eslint-disable jsx-a11y/anchor-is-valid */
 const MainLayout = ({ children, user }) => {
@@ -11,24 +10,24 @@ const MainLayout = ({ children, user }) => {
           <nav className="head-nav">
             <menu className="head-nav__menu">
               <li>
-                <Link to="/threads" className={window.location.pathname === '/threads' || window.location.pathname === '/' ? 'active' : ''}>
+                <a href="/threads" className={window.location.pathname === '/threads' || window.location.pathname === '/' ? 'active' : ''}>
                   Threads
-                </Link>
+                </a>
               </li>
               <li>
-                <Link to="/magazines" className={window.location.pathname === '/magazines' ? 'active' : ''}>
+                <a href="/magazines" className={window.location.pathname === '/magazines' ? 'active' : ''}>
                   Magazines
-                </Link>
+                </a>
               </li>
             </menu>
           </nav>
           <menu>
             <li>
-              <Link to="/search">
+              <a href="/search">
                 <div style={{ transform: 'rotate(270deg)' }}>
                   <big>⌕</big>
                 </div>
-              </Link>
+              </a>
             </li>
             <li className="dropdown">
               <a href="#">
@@ -36,31 +35,31 @@ const MainLayout = ({ children, user }) => {
               </a>
               <ul className="dropdown__menu">
                 <li>
-                  <Link to="/threads/new">Add New Thread</Link>
+                  <a href="/threads/new">Add New Thread</a>
                 </li>
                 <li>
-                  <Link to="/links/new">Add New Link</Link>
+                  <a href="/links/new">Add New Link</a>
                 </li>
                 <li>
-                  <Link to="/magazines/new">Add New Magazine</Link>
+                  <a href="/magazines/new">Add New Magazine</a>
                 </li>
               </ul>
             </li>
             <li className="dropdown">
               {!user ? (
-                <Link to="/login">Log in with API-KEY</Link>
+                <a href="/login">Log in with API-KEY</a>
               ) : (
                 <>
-                  <Link to={`/profile/${user.id}`}>{user.username}</Link>
+                  <a href={`/profile/${user.id}`}>{user.username}</a>
                   <ul className="dropdown__menu">
                     <li>
-                      <Link to={`/profile/${user.id}`}>Profile</Link>
+                      <a href={`/profile/${user.id}`}>Profile</a>
                     </li>
                     <li>
-                      <Link to={`/profile/edit/${user.id}`}>Edit Profile</Link>
+                      <a href={`/profile/edit/${user.id}`}>Edit Profile</a>
                     </li>
                     <li>
-                      <Link to="/logout">Log out</Link>
+                      <a href="/logout">Log out</a>
                     </li>
                   </ul>
                 </>
