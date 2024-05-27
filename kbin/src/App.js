@@ -5,28 +5,37 @@ import MagazineList from './components/Magazines/MagazineList';
 import ThreadList from './components/Threads/ThreadList';
 import Profile from './components/Profile/Profile';
 import EditProfile from './components/Profile/EditProfile';
-import MainLayout from './components/Layouts/MainLayout'
+import MainLayout from './components/Layouts/MainLayout';
+import SpecificThread from './components/Threads/SpecificThread';
 import './App.css';
 
 function App() {
   document.body.classList.add('theme--dark')
   document.head.classList.add('header')
   return (
-    
+
     <Router>
-      
+
       <MainLayout>
-      <div className="App">
-        
-        <Switch>
-          <Route path="/comments" component={CommentList} />
-          <Route path="/magazines" component={MagazineList} />
-          <Route path="/threads" component={ThreadList} />
-          <Route path="/profile/edit" component={EditProfile} />
-          <Route path="/profile/:userId" component={Profile} />
-        </Switch>
-      </div>
-      </MainLayout>      
+        <div className="App">
+
+          <Switch>
+            <Route exact path="/" component={ThreadList} />
+            <Route path="/threads" component={ThreadList} />
+            <Route path="/thread/:thread_id" component={SpecificThread} />
+            <Route path="/comments" component={CommentList} />
+            <Route path="/magazines" component={MagazineList} />
+            <Route path="/profile/edit" component={EditProfile} />
+            <Route path="/profile/:userId" component={Profile} />
+            {/* <Route path="/login" component={Login} />
+            <Route path="/search" component={Search} />
+            <Route path="/threads/create" component={AddNewThread} />
+            <Route path="/links/create" component={AddNewLink} />
+            <Route path="/magazines/create" component={AddNewMagazine} /> */}
+          </Switch>
+
+        </div>
+      </MainLayout>
     </Router>
   );
 }
