@@ -1,7 +1,8 @@
 import React from 'react';
-import { boostThread, unboostThread, likeThread, dislikeThread } from '../../services/api';
+import { boostThread, unboostThread, likeThread, unlikeThread, dislikeThread, undislikeThread } from '../../services/api';
 
 const Thread = ({ thread, user, reloadThreads }) => {
+
     const handleBoost = async () => {
         try {
             await boostThread(thread.id);
@@ -24,19 +25,29 @@ const Thread = ({ thread, user, reloadThreads }) => {
 
     const handleLike = async () => {
         try {
-            await likeThread(thread.id);
-            // Aquí puedes actualizar el estado o volver a obtener los datos si es necesario
-            console.log('Thread liked successfully');
+            if (thread.user_has_liked) {
+                await unlikeThread(thread.id);
+                console.log('Thread unliked successfully');
+            } else {
+                await likeThread(thread.id);
+                console.log('Thread liked successfully');
+            }
+            reloadThreads(); // Recargar threads después de like/unlike
         } catch (error) {
-            console.error('Error liking thread:', error);
+            console.error('Error handling like/unlike:', error);
         }
     };
 
     const handleDislike = async () => {
         try {
-            await dislikeThread(thread.id);
-            // Aquí puedes actualizar el estado o volver a obtener los datos si es necesario
-            console.log('Thread disliked successfully');
+            if (thread.user_has_disliked) {
+                await undislikeThread(thread.id);
+                console.log('Thread undisliked successfully');
+            } else {
+                await dislikeThread(thread.id);
+                console.log('Thread disliked successfully');
+            }
+            reloadThreads(); // Recargar threads después de dislike/undislike
         } catch (error) {
             console.error('Error disliking thread:', error);
         }
@@ -86,12 +97,12 @@ const Thread = ({ thread, user, reloadThreads }) => {
 
             <aside className="vote">
                 <button className="vote__up" onClick={handleLike} title="Favorite" aria-label="Favorite">
-                    <span>{thread.num_likes}</span>
+                    <span style={{ color: thread.user_has_liked ? '#13F30B' : 'inherit' }}>{thread.num_likes}</span>
                     <span role="img" aria-label="thumbs up">👍</span>
                 </button>
 
                 <button className="vote__down" onClick={handleDislike} title="Reduce" aria-label="Reduce">
-                    <span>{thread.num_dislikes}</span>
+                    <span style={{ color: thread.user_has_disliked ? '#F30B0B' : 'inherit' }}>{thread.num_dislikes}</span>
                     <span role="img" aria-label="thumbs down">👎</span>
                 </button>
             </aside>
