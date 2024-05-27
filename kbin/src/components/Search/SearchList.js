@@ -35,16 +35,13 @@ const SearchList = () => {
         is_edited: isEdited(thread.created_at, thread.updated_at),
       }));
 
-      // Apply filters to search results
-      const filteredResults = applyFilters(resultsWithTime, filter, order);
-
-      setSearchResults(filteredResults);
+      setSearchResults(resultsWithTime);
       setHasSearched(true); // Indicar que se ha realizado una búsqueda
 
       history.push({
         pathname: '/search/results',
         search: `?q=${query}`,
-        state: { threads: filteredResults, query },
+        state: { threads: resultsWithTime, query },
       });
 
     } catch (error) {
@@ -52,12 +49,12 @@ const SearchList = () => {
     }
   };
 
-  // Apply filters based on filter and order states
-  const applyFilters = (threads, filter, order) => {
-    let filteredThreads = threads;
+  // Function to filter and sort the threads based on filter and order states
+  const getFilteredAndSortedResults = () => {
+    let filteredThreads = searchResults;
 
     if (filter !== 'all') {
-      filteredThreads = threads.filter(thread => {
+      filteredThreads = filteredThreads.filter(thread => {
         if (filter === 'links') return thread.url;
         if (filter === 'threads') return !thread.url;
         return true;
@@ -65,7 +62,7 @@ const SearchList = () => {
     }
 
     filteredThreads = filteredThreads.sort((a, b) => {
-      if (order === 'points') return b.points - a.points;
+      if (order === 'points') return b.num_points - a.num_points;
       if (order === 'created_at') return new Date(b.created_at) - new Date(a.created_at);
       if (order === 'num_comments') return b.num_comments - a.num_comments;
       return 0;
@@ -111,8 +108,8 @@ const SearchList = () => {
         </div>
       </div>
 
-      {/* Renderiza la barra de filtros solo si hay resultados de búsqueda */}
-      {hasSearched > 0 && (
+      {/* Renderiza la barra de filtros solo si se ha realizado una búsqueda */}
+      {hasSearched && (
         <aside className="options options--top" id="options">
           <Menu setOrder={setOrder} isActive={isActive} />
           <Filters setFilter={setFilter} isActive={isActive} />
@@ -127,7 +124,7 @@ const SearchList = () => {
             </aside>
           </div>
         ) : (
-          searchResults.map((thread) => (
+          getFilteredAndSortedResults().map((thread) => (
             <Thread key={thread.id} thread={thread} user={user} />
           ))
         )}
