@@ -51,7 +51,6 @@ export const getMagazines = async (orderBy = 'subscriptions_count') => {
   try {
     const response = await fetch(`${BASE_URL}/magazines/?orderby=${orderBy}`, {
       headers: {
-        'Authorization': `Token ${API_KEY}`,
         'Content-Type': 'application/json',
       },
     });
@@ -76,6 +75,7 @@ export const createMagazine = async (magazineData) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Token ${API_KEY}`,
         'X-CSRFToken': csrfToken // Agrega el token CSRF
       },
       body: JSON.stringify(magazineData),
