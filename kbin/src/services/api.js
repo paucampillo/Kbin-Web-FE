@@ -76,7 +76,6 @@ export const createMagazine = async (magazineData) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Token ${API_KEY}`, // Reemplaza con tu clave de API
         'X-CSRFToken': csrfToken // Agrega el token CSRF
       },
       body: JSON.stringify(magazineData),
