@@ -200,6 +200,29 @@ export const createThread = async (threadData) => {
   }
 };
 
+// Function to update a thread
+export const updateThread = async (threadId, threadData) => {
+  try {
+    const response = await fetch(`/api/threads/${threadId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(threadData),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to create thread');
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error creating thread:', error);
+    throw error;
+  }
+};
+
 
 // Function boost a thread
 export const boostThread = async (threadId) => {
