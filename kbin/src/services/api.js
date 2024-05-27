@@ -47,25 +47,34 @@ export const createComment = async (commentData) => {
 };
 
 // Function to fetch magazines
-export const getMagazines = async (orderBy = 'subscriptions_count') => {
+export const getMagazines = async (orderBy = 'subscriptions_count', token ) => {
   try {
+    const headers = {
+      'Content-Type': 'application/json',
+    };
+    token = API_KEY !== ''; 
+    if (token) {
+      headers['Authorization'] = `Token ${API_KEY}`;
+    }
+
     const response = await fetch(`${BASE_URL}/magazines/?orderby=${orderBy}`, {
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      method: 'GET',
+      headers: headers,
     });
+
     if (!response.ok) {
       throw new Error('Failed to fetch magazines');
     }
+
     const data = await response.json();
-    
-    console.log('Data from getMagazinesdddddddddd:', data); // Print data to console
+    console.log('Data from getMagazines:', data); // Print data to console
     return data;
   } catch (error) {
     console.error('Error fetching magazines:', error);
     throw error;
   }
 };
+
 
 // Function to create a magazine
 export const createMagazine = async (magazineData) => {
