@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useHistory } from 'react-router-dom';
+//import { useHistory } from 'react-router-dom';
 import { createMagazine } from '../../services/api'; // Ajusta la ruta según tu estructura de proyecto
 import Cookies from 'js-cookie';
 
@@ -11,8 +11,8 @@ const MagazineForm = () => {
         rules: ''
     });
     const [error, setError] = useState(null);
-    const [success, setSuccess] = useState(false);
-    const history = useHistory(); // Hook de React Router
+    //const [success, setSuccess] = useState(false);
+    //const history = useHistory(); // Hook de React Router
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -27,7 +27,7 @@ const MagazineForm = () => {
         const csrfToken = Cookies.get('csrftoken');
         try {
             await createMagazine(formData, csrfToken);
-            setSuccess(true);
+            //setSuccess(true);
             setError(null);
             setFormData({
                 name: '',
@@ -35,10 +35,11 @@ const MagazineForm = () => {
                 description: '',
                 rules: ''
             });
-            history.push('/threads'); // Redirige a la lista de magazines después de crear uno nuevo
+            window.location.href = '/threads'
+            //history.push('/threads'); // Redirige a la lista de magazines después de crear uno nuevo
         } catch (error) {
             setError('Failed to create magazine');
-            setSuccess(false);
+            //setSuccess(false);
         }
     };
 
@@ -50,7 +51,6 @@ const MagazineForm = () => {
                         <div className="container">
                             <form name="magazine" onSubmit={handleSubmit}>
                                 {error && <div className="error">{error}</div>}
-                                {success && <div className="success">Magazine created successfully!</div>}
                                 <FormInput
                                     id="magazine_name"
                                     name="name"
