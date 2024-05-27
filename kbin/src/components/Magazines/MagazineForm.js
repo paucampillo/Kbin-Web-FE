@@ -35,7 +35,7 @@ const MagazineForm = () => {
                 description: '',
                 rules: ''
             });
-            window.location.href = '/threads'
+            window.location.href = '/magazines'
             //history.push('/threads'); // Redirige a la lista de magazines después de crear uno nuevo
         } catch (error) {
             setError('Failed to create magazine');
