@@ -9,6 +9,7 @@ import MainLayout from './components/Layouts/MainLayout';
 import SpecificThread from './components/Threads/SpecificThread';
 import ThreadCreate from './components/Threads/ThreadCreate';
 import MagazineForm from './components/Magazines/MagazineForm'; // Ajusta la ruta según tu estructura de proyecto
+import MagazinePage from './components/Magazines/MagazinePage';
 
 import './App.css';
 
@@ -29,6 +30,7 @@ function App() {
             <Route path="/thread/:thread_id" component={SpecificThread} />
             <Route path="/magazines/new" component={MagazineForm} />
             <Route path="/comments" component={CommentList} />
+            <Route path="/magazines/:magazineId" component={MagazinePage} /> 
             <Route path="/magazines" component={MagazineList} />
             <Route path="/profile/edit" component={EditProfile} />
             <Route path="/profile/:userId" component={Profile} />
