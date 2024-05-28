@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import Menu from './Menu';
 import Filters from './Filters';
 import Thread from './Thread';
@@ -8,6 +8,7 @@ import { getThreads } from '../../services/api';
 const user = {
   id: 1,
   username: 'example_user',
+  isAuthenticated: true,
 };
 
 const ThreadList = () => {
@@ -17,25 +18,26 @@ const ThreadList = () => {
   const [threads, setThreads] = useState([]); // Estado para almacenar los threads obtenidos
   const [error, setError] = useState(null); // Estado para manejar errores
 
-  useEffect(() => { // Efecto secundario para obtener los threads
-    const fetchThreads = async () => {
-      setError(null); // Resetea cualquier error previo
-      try {
-        const data = await getThreads(filter, order); // Llama a la API con los parámetros actuales
-        const threadsWithTime = data.map(thread => ({
-          ...thread,
-          time_since_creation: timeElapsed(thread.created_at),
-          time_since_update: timeElapsed(thread.updated_at),
-          is_edited: isEdited(thread.created_at, thread.updated_at),
-        }));
-        setThreads(threadsWithTime); // Actualiza el estado de los threads con los datos obtenidos
-      } catch (error) {
-        setError('Failed to fetch threads');
-      }
-    };
+  // useCallback: evita potenciales bucles infinitos de renderizado
+  const fetchThreads = useCallback(async () => {
+    setError(null); // Resetea cualquier error previo
+    try {
+      const data = await getThreads(filter, order, user.isAuthenticated); // Llama a la API con los parámetros actuales
+      const threadsWithTime = data.map(thread => ({
+        ...thread,
+        time_since_creation: timeElapsed(thread.created_at),
+        time_since_update: timeElapsed(thread.updated_at),
+        is_edited: isEdited(thread.created_at, thread.updated_at),
+      }));
+      setThreads(threadsWithTime); // Actualiza el estado de los threads con los datos obtenidos
+    } catch (error) {
+      setError('Failed to fetch threads');
+    }
+  }, [filter, order]); // Dependencias: `filter` y `order`
 
+  useEffect(() => { // Efecto secundario para obtener los threads
     fetchThreads(); // Ejecuta la función para obtener los threads
-  }, [order, filter]); // Dependencias: vuelve a ejecutar el efecto si `order` o `filter` cambian
+  }, [fetchThreads]); // Dependencias: vuelve a ejecutar el efecto si `order` o `filter` cambian
 
   if (error) {
     return <div>{error}</div>;
@@ -62,7 +64,7 @@ const ThreadList = () => {
             </aside>
             <div id="content">
               {threads.map(thread => (
-                <Thread key={thread.id} thread={thread} user={user} />
+                <Thread key={thread.id} thread={thread} user={user} reloadThreads={fetchThreads} />
               ))}
             </div>
           </main>

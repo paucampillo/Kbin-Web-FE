@@ -8,7 +8,10 @@ const Magazines = () => {
   useEffect(() => {
     const fetchMagazinesData = async () => {
       try {
-        const data = await getMagazines(orderby);
+        const token = localStorage.getItem('authToken');
+        const userAuthenticated = !!token; // Convert to boolean to check if token exists
+        const data = await getMagazines(orderby, userAuthenticated ? token : false);
+        
         console.log('Data from getfaaa:', data); // Print data to console
         setMagazines(data);
       } catch (error) {
@@ -26,8 +29,9 @@ const Magazines = () => {
       } else {
         await unsubscribeFromMagazine(magazineId);
       }
-      const data = await getMagazines(orderby);
+      const data = await getMagazines(orderby,true);
       setMagazines(data);
+      //window.location.href = '/magazines'
     } catch (error) {
       console.error(`Error ${action}ing magazine:`, error);
     }

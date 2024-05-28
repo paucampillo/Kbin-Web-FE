@@ -90,21 +90,22 @@ export const getMagazineThreads = async (magazineId, filter = 'all', orderBy = '
 export const getMagazines = async (orderBy = 'subscriptions_count') => {
   try {
     const response = await fetch(`${BASE_URL}/magazines/?orderby=${orderBy}`, {
-      headers: {
-        'Authorization': `Token ${API_KEY}`,
-        'Content-Type': 'application/json',
-      },
+      method: 'GET',
+      headers: headers,
     });
     if (!response.ok) {
       throw new Error('Failed to fetch magazines');
     }
+
     const data = await response.json();
+    console.log('Data from getMagazines:', data); // Print data to console
     return data;
   } catch (error) {
     console.error('Error fetching magazines:', error);
     throw error;
   }
 };
+
 
 // Function to create a magazine
 export const createMagazine = async (magazineData) => {
@@ -114,7 +115,7 @@ export const createMagazine = async (magazineData) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Token ${API_KEY}`, // Reemplaza con tu clave de API
+        'Authorization': `Token ${API_KEY}`,
         'X-CSRFToken': csrfToken // Agrega el token CSRF
       },
       body: JSON.stringify(magazineData),
@@ -169,16 +170,53 @@ export const unsubscribeFromMagazine = async (magazineId) => {
 };
 
 // Function to fetch threads
-export const getThreads = async (filter = 'all', orderBy = 'created_at') => {
+export const getThreads = async (filter = 'all', orderBy = 'created_at', token = false) => {
   try {
-    const response = await fetch(`${BASE_URL}/threads/?filter=${filter}&order_by=${orderBy}`, {});
-    
+    const headers = {
+      'Content-Type': 'application/json',
+    };
+    if (token) {
+      headers['Authorization'] = `Token ${API_KEY}`;
+    }
+
+    const response = await fetch(`${BASE_URL}/threads/?filter=${filter}&order_by=${orderBy}`, {
+      method: 'GET',
+      headers: headers,
+    });
+
     if (!response.ok) {
       throw new Error('Failed to fetch threads');
     }
 
     const data = await response.json();
     console.log('threads:', data); // Print data to console
+    return data;
+  } catch (error) {
+    console.error('Error fetching threads:', error);
+    throw error;
+  }
+};
+
+// Function to get a thread
+export const getThread = async (threadId, token = false) => {
+  try {
+    const headers = {
+      'Content-Type': 'application/json',
+    };
+    if (token) {
+      headers['Authorization'] = `Token ${API_KEY}`;
+    }
+
+    const response = await fetch(`${BASE_URL}/threads/${threadId}/`, {
+      method: 'GET',
+      headers: headers,
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch thread');
+    }
+
+    const data = await response.json();
     return data;
   } catch (error) {
     console.error('Error fetching threads:', error);
@@ -223,13 +261,35 @@ export const boostThread = async (threadId) => {
     });
 
     if (!response.ok) {
+      if (response.status === 409) {
+        throw new Error("The user has already boosted this thread");
+      }
       throw new Error('Failed to boost thread');
     }
 
-    const data = await response.json();
-    return data;
   } catch (error) {
     console.error('Error boosting thread:', error);
+    throw error;
+  }
+};
+
+// Function to unboost a thread
+export const unboostThread = async (threadId) => {
+  try {
+    const response = await fetch(`${BASE_URL}/threads/${threadId}/boosts/`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${API_KEY}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to unboost thread');
+    }
+
+  } catch (error) {
+    console.error('Error unboosting thread:', error);
     throw error;
   }
 };
@@ -250,8 +310,28 @@ export const likeThread = async (threadId) => {
       throw new Error('Failed to like thread');
     }
 
-    const data = await response.json();
-    return data;
+  } catch (error) {
+    console.error('Error liking thread:', error);
+    throw error;
+  }
+};
+
+
+// Function to delete like
+export const unlikeThread = async (threadId) => {
+  try {
+    const response = await fetch(`${BASE_URL}/threads/${threadId}/likes/`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${API_KEY}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to like thread');
+    }
+
   } catch (error) {
     console.error('Error liking thread:', error);
     throw error;
@@ -262,7 +342,7 @@ export const likeThread = async (threadId) => {
 // Function to dislike a thread
 export const dislikeThread = async (threadId) => {
   try {
-    const response = await fetch(`http://127.0.0.1:8000/threads/${threadId}/dislikes/`, {
+    const response = await fetch(`${BASE_URL}/threads/${threadId}/dislikes/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -274,8 +354,28 @@ export const dislikeThread = async (threadId) => {
       throw new Error('Failed to dislike thread');
     }
 
-    const data = await response.json();
-    return data;
+  } catch (error) {
+    console.error('Error disliking thread:', error);
+    throw error;
+  }
+};
+
+
+// Function to delete dislike
+export const undislikeThread = async (threadId) => {
+  try {
+    const response = await fetch(`${BASE_URL}/threads/${threadId}/dislikes/`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${API_KEY}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to dislike thread');
+    }
+
   } catch (error) {
     console.error('Error disliking thread:', error);
     throw error;
@@ -304,14 +404,14 @@ export const getMyProfile = async () => {
 
 // Function to fetch profile details for a user
 export const getProfile = async (userId) => {
-    try {
-      console.log(userId)
-      const response = await axios.get(`${BASE_URL}/profile/${userId}/`);
-      return response.data;
-    } catch (error) {
-      throw new Error('Failed to fetch profile');
-    }
-  };
+  try {
+    console.log(userId)
+    const response = await axios.get(`${BASE_URL}/profile/${userId}/`);
+    return response.data;
+  } catch (error) {
+    throw new Error('Failed to fetch profile');
+  }
+};
 
 // Function to update user profile
 export const updateProfile = async (userId, profileData) => {
