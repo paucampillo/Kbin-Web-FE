@@ -30,8 +30,8 @@ function App() {
             <Route path="/thread/:thread_id" component={SpecificThread} />
             <Route path="/magazines/new" component={MagazineForm} />
             <Route path="/comments" component={CommentList} />
-            <Route path="/magazines/:magazineId" component={MagazinePage} /> {/* Nueva ruta para magazine */}
-          <Route path="/magazines" component={MagazineList} />
+            <Route path="/magazines/:magazineId" component={MagazinePage} /> 
+            <Route path="/magazines" component={MagazineList} />
             <Route path="/profile/edit" component={EditProfile} />
             <Route path="/profile/:userId" component={Profile} />
             

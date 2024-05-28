@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useCallback} from 'react';
 import { Link } from 'react-router-dom';
 import Menu from '../Threads/Menu';
 import Filters from '../Threads/Filters';
@@ -15,28 +15,29 @@ const MagazineDetail = ({ magazine }) => {
   const [filter, setFilter] = useState('all');  // all, links, threads
   const [threads, setThreads] = useState([]); // Estado para almacenar los threads obtenidos
   const [isSubscribed, setIsSubscribed] = useState(magazine.user_has_subscribed);
-  const [subscriptionsCount, setSubscriptionsCount] = useState(magazine.subscriptions_count);
+  const [subscriptionsCount,setSubscriptionsCount] = useState(magazine.subscriptions_count);
   const [error, setError] = useState(null);
 
-  useEffect(() => { // Efecto secundario para obtener los threads
-    const fetchThreads = async () => {
-      setError(null); // Resetea cualquier error previo
-      try {
-        const data = await getMagazineThreads(magazine.id, filter, order); // Llama a la API con los parámetros actuales
-        const threadsWithTime = data.map(thread => ({
-          ...thread,
-          time_since_creation: timeElapsed(thread.created_at),
-          time_since_update: timeElapsed(thread.updated_at),
-          is_edited: isEdited(thread.created_at, thread.updated_at),
-        }));
-        setThreads(threadsWithTime); // Actualiza el estado de los threads con los datos obtenidos
-      } catch (error) {
-        setError('Failed to fetch threads');
-      }
-    };
 
+  const fetchThreads = useCallback(async () => {
+    setError(null); // Resetea cualquier error previo
+    try {
+      const data = await getMagazineThreads(magazine.id, filter, order); // Llama a la API con los parámetros actuales
+      const threadsWithTime = data.map(thread => ({
+        ...thread,
+        time_since_creation: timeElapsed(thread.created_at),
+        time_since_update: timeElapsed(thread.updated_at),
+        is_edited: isEdited(thread.created_at, thread.updated_at),
+      }));
+      setThreads(threadsWithTime); // Actualiza el estado de los threads con los datos obtenidos
+    } catch (error) {
+      setError('Failed to fetch threads');
+    }
+  }, [magazine.id, filter, order]); // Dependencias: `magazine.id`, `filter`, `order`
+
+  useEffect(() => {
     fetchThreads();
-  }, [filter, order, magazine.id]);
+  }, [fetchThreads]); // Llama a `fetchThreads` cuando cambian las dependencias
 
   const handleSubscription = async (e) => {
     e.preventDefault();
@@ -49,6 +50,7 @@ const MagazineDetail = ({ magazine }) => {
         await subscribeToMagazine(magazine.id);
         setIsSubscribed(true);
         setSubscriptionsCount(subscriptionsCount + 1);
+        
       }
     } catch (error) {
       setError('Failed to update subscription');
@@ -115,6 +117,7 @@ const MagazineDetail = ({ magazine }) => {
                   </div>
                   <form onSubmit={handleSubscription}>
                     <button type="submit" className="btn btn__secondary action" data-action="subs#send">
+                      
                       <span>{isSubscribed ? 'Unsubscribe' : 'Subscribe'}</span>
                     </button>
                   </form>
@@ -158,7 +161,7 @@ const MagazineDetail = ({ magazine }) => {
             <div id="content">
               {error && <p>{error}</p>}
               {threads.map(thread => (
-                <Thread key={thread.id} thread={thread} user={user} />
+                <Thread key={thread.id} thread={thread} user={user} reloadThreads={fetchThreads}/>
               ))}
             </div>
           </div>

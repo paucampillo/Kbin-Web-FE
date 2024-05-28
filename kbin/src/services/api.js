@@ -48,17 +48,29 @@ export const createComment = async (commentData) => {
 
 export const getMagazine = async (magazineId) => {
   try {
+    const headers = {
+      'Content-Type': 'application/json',
+    };
+    
+    // Verifica si hay un usuario autenticado
+    const userAuthenticated = API_KEY !== '';
+
+    // Si hay un usuario autenticado, agrega el token a los encabezados
+    if (userAuthenticated) {
+      headers['Authorization'] = `Token ${API_KEY}`;
+    }
+
     const response = await fetch(`${BASE_URL}/magazines/${magazineId}/`, {
       method: 'GET',
-      headers: {
-        'Authorization': `Token ${API_KEY}`,
-        'Content-Type': 'application/json',
-      },
+      headers: headers,
     });
+
     if (!response.ok) {
       throw new Error('Failed to fetch magazine details');
     }
+
     const data = await response.json();
+    console.log("Data from getMagazine:", data); // Print data to console
     return data;
   } catch (error) {
     console.error('Error fetching magazine details:', error);
@@ -66,11 +78,12 @@ export const getMagazine = async (magazineId) => {
   }
 };
 
+
 export const getMagazineThreads = async (magazineId, filter = 'all', orderBy = 'created_at') => {
   try {
     const response = await fetch(`${BASE_URL}/magazines/${magazineId}/threads/?filter=${filter}&order_by=${orderBy}`, {
       headers: {
-        'Authorization': `Token ${API_KEY}`,
+        //'Authorization': `Token ${API_KEY}`,
         'Content-Type': 'application/json',
       },
     });
@@ -87,12 +100,21 @@ export const getMagazineThreads = async (magazineId, filter = 'all', orderBy = '
 };
 
 // Function to fetch magazines
-export const getMagazines = async (orderBy = 'subscriptions_count') => {
+export const getMagazines = async (orderBy = 'subscriptions_count', token ) => {
   try {
+    const headers = {
+      'Content-Type': 'application/json',
+    };
+    token = API_KEY !== ''; 
+    if (token) {
+      headers['Authorization'] = `Token ${API_KEY}`;
+    }
+
     const response = await fetch(`${BASE_URL}/magazines/?orderby=${orderBy}`, {
       method: 'GET',
       headers: headers,
     });
+
     if (!response.ok) {
       throw new Error('Failed to fetch magazines');
     }
