@@ -201,9 +201,9 @@ export const createThread = async (threadData) => {
 };
 
 // Function to update a thread
-export const updateThread = async (threadId, threadData) => {
+export const updateThreadLink = async (threadId, threadData) => {
   try {
-    const response = await fetch(`/api/threads/${threadId}`, {
+    const response = await fetch(`${BASE_URL}/threads/${threadId}/`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
