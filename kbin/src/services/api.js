@@ -81,20 +81,30 @@ export const getMagazine = async (magazineId) => {
 
 export const getMagazineThreads = async (magazineId, filter = 'all', orderBy = 'created_at') => {
   try {
-    const response = await fetch(`${BASE_URL}/magazines/${magazineId}/threads/?filter=${filter}&order_by=${orderBy}`, {
-      headers: {
-        //'Authorization': `Token ${API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-    });
-    if (!response.ok) {
-      throw new Error('Failed to fetch magazine details');
+    const headers = {
+      'Content-Type': 'application/json',
+    };
+    
+    // Incluir el encabezado Authorization si API_KEY está presente
+    const userAuthenticated = API_KEY !== '';
+    if (userAuthenticated) {
+      headers['Authorization'] = `Token ${API_KEY}`;
     }
+
+    const response = await fetch(`${BASE_URL}/magazines/${magazineId}/threads/?filter=${filter}&order_by=${orderBy}`, {
+      method: 'GET', // Especificar el método GET
+      headers: headers,
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch magazine threads');
+    }
+
     const data = await response.json();
-    console.log("getmagazine" + data);
-    return data
+    console.log("Data from getMagazineThreads:", data); // Imprimir datos en la consola
+    return data;
   } catch (error) {
-    console.error('Error fetching magazine:', error);
+    console.error('Error fetching magazine threads:', error);
     throw error;
   }
 };
