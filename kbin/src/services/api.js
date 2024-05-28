@@ -263,7 +263,32 @@ export const createThread = async (threadData) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Token ${API_KEY}`, // Replace YOUR_API_KEY with actual API key
+        'Authorization': `Token ${API_KEY}`,
+      },
+      body: JSON.stringify(threadData),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to create thread');
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error creating thread:', error);
+    throw error;
+  }
+};
+
+
+// Function to update a thread
+export const updateThreadLink = async (threadId, threadData) => {
+  try {
+    const response = await fetch(`${BASE_URL}/threads/${threadId}/`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${API_KEY}`,
       },
       body: JSON.stringify(threadData),
     });
