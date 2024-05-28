@@ -1,5 +1,4 @@
-import React, { useState, useEffect,useCallback} from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
 import Menu from '../Threads/Menu';
 import Filters from '../Threads/Filters';
 import Thread from '../Threads/Thread';
@@ -11,33 +10,32 @@ const user = {
 };
 
 const MagazineDetail = ({ magazine }) => {
-  const [order, setOrder] = useState('points'); // points, created_at, num_comments
-  const [filter, setFilter] = useState('all');  // all, links, threads
-  const [threads, setThreads] = useState([]); // Estado para almacenar los threads obtenidos
+  const [order, setOrder] = useState('points');
+  const [filter, setFilter] = useState('all');
+  const [threads, setThreads] = useState([]);
   const [isSubscribed, setIsSubscribed] = useState(magazine.user_has_subscribed);
-  const [subscriptionsCount,setSubscriptionsCount] = useState(magazine.subscriptions_count);
+  const [subscriptionsCount, setSubscriptionsCount] = useState(magazine.subscriptions_count);
   const [error, setError] = useState(null);
 
-
   const fetchThreads = useCallback(async () => {
-    setError(null); // Resetea cualquier error previo
+    setError(null);
     try {
-      const data = await getMagazineThreads(magazine.id, filter, order); // Llama a la API con los parámetros actuales
+      const data = await getMagazineThreads(magazine.id, filter, order);
       const threadsWithTime = data.map(thread => ({
         ...thread,
         time_since_creation: timeElapsed(thread.created_at),
         time_since_update: timeElapsed(thread.updated_at),
         is_edited: isEdited(thread.created_at, thread.updated_at),
       }));
-      setThreads(threadsWithTime); // Actualiza el estado de los threads con los datos obtenidos
+      setThreads(threadsWithTime);
     } catch (error) {
       setError('Failed to fetch threads');
     }
-  }, [magazine.id, filter, order]); // Dependencias: `magazine.id`, `filter`, `order`
+  }, [magazine.id, filter, order]);
 
   useEffect(() => {
     fetchThreads();
-  }, [fetchThreads]); // Llama a `fetchThreads` cuando cambian las dependencias
+  }, [fetchThreads]);
 
   const handleSubscription = async (e) => {
     e.preventDefault();
@@ -50,7 +48,6 @@ const MagazineDetail = ({ magazine }) => {
         await subscribeToMagazine(magazine.id);
         setIsSubscribed(true);
         setSubscriptionsCount(subscriptionsCount + 1);
-        
       }
     } catch (error) {
       setError('Failed to update subscription');
@@ -97,63 +94,12 @@ const MagazineDetail = ({ magazine }) => {
       <div id="middle" className="page-user page-user-overview">
         <div className="kbin-container">
           <div id="main" data-controller="lightbox timeago">
-            <div className="section section--top">
-              <section className="magazine section">
-                <h4>Magazine</h4>
-                <hr />
-                <div className="row">
-                  <header>
-                    <h4>
-                      <Link to={`/magazine/${magazine.id}`}>
-                        {magazine.name}
-                      </Link>
-                    </h4>
-                    <p className="magazine__name">{magazine.title}</p>
-                  </header>
-                </div>
-                <aside className="magazine__subscribe" data-controller="subs">
-                  <div className="action">
-                    <span>{subscriptionsCount}</span>
-                  </div>
-                  <form onSubmit={handleSubscription}>
-                    <button type="submit" className="btn btn__secondary action" data-action="subs#send">
-                      
-                      <span>{isSubscribed ? 'Unsubscribe' : 'Subscribe'}</span>
-                    </button>
-                  </form>
-                </aside>
-                <hr />
-                <div className="content magazine__description">
-                  <h3>About Community</h3>
-                  <p>{magazine.description}</p>
-                </div>
-                <hr />
-                <h4 className="mt-3">Rules</h4>
-                <div className="content magazine__rules">
-                  <p>{magazine.rules}</p>
-                </div>
-                <hr />
-                <ul className="info">
-                  <li>Created: <time className="timeago">{magazine.publish_date}</time></li>
-                  <li>Owner: 
-                    <span>
-                      <Link to={`/profile/${magazine.author.id}`} className="user-inline">
-                        <img width="30" height="30" src={magazine.author.avatar} alt="avatar" />
-                        {magazine.author.username}
-                      </Link>
-                    </span>
-                  </li>
-                  <li>Subscribers: <span>{subscriptionsCount}</span></li>
-                  <li>
-                    <Link to={`/magazine/${magazine.id}/threads`}>
-                      Threads:
-                    </Link> 
-                    <span>{magazine.threads_count}</span>
-                  </li>
-                  <li>Comments: <span>{magazine.comments_count}</span></li>
-                </ul>
-              </section>
-            </div>
+            <MagazineSection
+              magazine={magazine}
+              isSubscribed={isSubscribed}
+              subscriptionsCount={subscriptionsCount}
+              handleSubscription={handleSubscription}
+            />
             <aside className="options options--top" id="options">
               <Menu setOrder={setOrder} isActive={isActive} />
               <Filters setFilter={setFilter} isActive={isActive} />
@@ -161,7 +107,7 @@ const MagazineDetail = ({ magazine }) => {
             <div id="content">
               {error && <p>{error}</p>}
               {threads.map(thread => (
-                <Thread key={thread.id} thread={thread} user={user} reloadThreads={fetchThreads}/>
+                <Thread key={thread.id} thread={thread} user={user} reloadThreads={fetchThreads} />
               ))}
             </div>
           </div>
@@ -171,5 +117,62 @@ const MagazineDetail = ({ magazine }) => {
     </main>
   );
 };
+
+const MagazineSection = ({ magazine, isSubscribed, subscriptionsCount, handleSubscription }) => (
+  <div className="section section--top">
+    <section className="magazine section">
+      <h4>Magazine</h4>
+      <hr />
+      <div className="row">
+        <header>
+          <h4>
+            <a href={`/magazines/${magazine.id}`}>
+              {magazine.name}
+            </a>
+          </h4>
+          <p className="magazine__name">{magazine.title}</p>
+        </header>
+      </div>
+      <aside className="magazine__subscribe" data-controller="subs">
+        <div className="action">
+          <span>{subscriptionsCount}</span>
+        </div>
+        <form onSubmit={handleSubscription}>
+          <button type="submit" className="btn btn__secondary action" data-action="subs#send">
+            <span>{isSubscribed ? 'Unsubscribe' : 'Subscribe'}</span>
+          </button>
+        </form>
+      </aside>
+      <hr />
+      <div className="content magazine__description">
+        <h3>About Community</h3>
+        <p>{magazine.description}</p>
+      </div>
+      <hr />
+      <h4 className="mt-3">Rules</h4>
+      <div className="content magazine__rules">
+        <p>{magazine.rules}</p>
+      </div>
+      <hr />
+      <ul className="info">
+        <li>Created: <time className="timeago">{magazine.publish_date}</time></li>
+        <li>Owner: 
+          <span>
+            <a href={`/profile/${magazine.author.id}`} className="user-inline">
+              <img width="30" height="30" src={magazine.author.avatar} alt="avatar" />
+              {magazine.author.username}
+            </a>
+          </span>
+        </li>
+        <li>Subscribers: <span>{subscriptionsCount}</span></li>
+        <li>
+            Threads:
+          <span>{magazine.threads_count}</span>
+        </li>
+        <li>Comments: <span>{magazine.comments_count}</span></li>
+      </ul>
+    </section>
+  </div>
+);
 
 export default MagazineDetail;
