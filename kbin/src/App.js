@@ -8,6 +8,7 @@ import EditProfile from './components/Profile/EditProfile';
 import MainLayout from './components/Layouts/MainLayout';
 import SpecificThread from './components/Threads/SpecificThread';
 import ThreadCreate from './components/Threads/ThreadCreate';
+import LinkCreate from './components/Threads/LinkCreate';
 import './App.css';
 
 function App() {
@@ -25,6 +26,7 @@ function App() {
             <Route exact path="/threads" component={ThreadList} />
             <Route path="/threads/new" component={ThreadCreate} />
             <Route path="/thread/:thread_id" component={SpecificThread} />
+            <Route path="/links/new" component={LinkCreate} />
             <Route path="/comments" component={CommentList} />
             <Route path="/magazines" component={MagazineList} />
             <Route path="/profile/edit" component={EditProfile} />
