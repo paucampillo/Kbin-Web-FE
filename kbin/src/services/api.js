@@ -183,7 +183,7 @@ export const createThread = async (threadData) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Token ${API_KEY}`, // Replace YOUR_API_KEY with actual API key
+        'Authorization': `Token ${API_KEY}`,
       },
       body: JSON.stringify(threadData),
     });
@@ -200,6 +200,7 @@ export const createThread = async (threadData) => {
   }
 };
 
+
 // Function to update a thread
 export const updateThreadLink = async (threadId, threadData) => {
   try {
@@ -207,6 +208,7 @@ export const updateThreadLink = async (threadId, threadData) => {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Token ${API_KEY}`,
       },
       body: JSON.stringify(threadData),
     });

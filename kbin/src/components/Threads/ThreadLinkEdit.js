@@ -40,7 +40,7 @@ const ThreadLinkEdit = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const threadLinkData = { url, title, body, magazine: selectedMagazine };
+        const threadLinkData = { title, body };
         try {
             const updatedThreadOrLink = await updateThreadLink(thread_id, threadLinkData);
             console.log('Thread/Link updated successfully:', updatedThreadOrLink);
