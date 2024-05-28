@@ -1,73 +1,73 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import "../../App.css"
+import "../../App.css";
 
-const MainLayout = ({ children, user}) => {
+/* eslint-disable jsx-a11y/anchor-is-valid */
+const MainLayout = ({ children, user }) => {
   return (
     <div>
-     <header id="header" className="header">
-    <div className="kbin-container">
-      <nav className="head-nav">
-        <menu className="head-nav__menu">
-          <li>
-            <Link to="/threads" className={window.location.pathname === '/threads' || window.location.pathname === '/' ? 'active' : ''}>
-                Threads
-            </Link>
-          </li>
-          <li>
-            <Link to="/magazines" className={window.location.pathname === '/magazines' ? 'active' : ''}>
-                Magazines
-            </Link>
-          </li>
-        </menu>
-      </nav>
-      <menu>
-        <li>
-            <Link to="/search">
+      <header id="header" className="header">
+        <div className="kbin-container">
+          <nav className="head-nav">
+            <menu className="head-nav__menu">
+              <li>
+                <a href="/threads" className={window.location.pathname === '/threads' || window.location.pathname === '/' ? 'active' : ''}>
+                  Threads
+                </a>
+              </li>
+              <li>
+                <a href="/magazines" className={window.location.pathname === '/magazines' ? 'active' : ''}>
+                  Magazines
+                </a>
+              </li>
+            </menu>
+          </nav>
+          <menu>
+            <li>
+              <a href="/search">
                 <div style={{ transform: 'rotate(270deg)' }}>
                   <big>⌕</big>
                 </div>
-              </Link>
-        </li>
-        <li className="dropdown">
-            <a href="#">
+              </a>
+            </li>
+            <li className="dropdown">
+              <a href="#">
                 <big><big>+</big></big>
               </a>
-          <ul className="dropdown__menu">
-            <li>
-                <Link to="/threads/new">Add New Thread</Link>
+              <ul className="dropdown__menu">
+                <li>
+                  <a href="/threads/new">Add New Thread</a>
+                </li>
+                <li>
+                  <a href="/links/new">Add New Link</a>
+                </li>
+                <li>
+                  <a href="/magazines/new">Add New Magazine</a>
+                </li>
+              </ul>
             </li>
-            <li>
-                <Link to="/links/new">Add New Link</Link>
-            </li>
-            <li>
-                <Link to="/magazines/new">Add New Magazine</Link>
-            </li>
-          </ul>
-        </li>
-        <li className="dropdown">
+            <li className="dropdown">
               {!user ? (
-                <Link to="/login">Log in with API-KEY</Link>
+                <a href="/login">Log in with API-KEY</a>
               ) : (
                 <>
-                  <Link to={`/profile/${user.id}`}>{user.username}</Link>
+                  <a href={`/profile/${user.id}`}>{user.username}</a>
                   <ul className="dropdown__menu">
                     <li>
-                      <Link to={`/profile/${user.id}`}>Profile</Link>
+                      <a href={`/profile/${user.id}`}>Profile</a>
                     </li>
                     <li>
-                      <Link to={`/profile/edit/${user.id}`}>Edit Profile</Link>
+                      <a href={`/profile/edit/${user.id}`}>Edit Profile</a>
                     </li>
                     <li>
-                      <Link to="/logout">Log out</Link>
+                      <a href="/logout">Log out</a>
                     </li>
                   </ul>
                 </>
               )}
             </li>
-      </menu>
-    </div>
-  </header>
+          </menu>
+        </div>
+      </header>
       <main>
         {children}
       </main>
