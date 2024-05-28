@@ -8,6 +8,9 @@ import EditProfile from './components/Profile/EditProfile';
 import MainLayout from './components/Layouts/MainLayout';
 import SpecificThread from './components/Threads/SpecificThread';
 import ThreadCreate from './components/Threads/ThreadCreate';
+import MagazineForm from './components/Magazines/MagazineForm'; // Ajusta la ruta según tu estructura de proyecto
+import MagazinePage from './components/Magazines/MagazinePage';
+import LinkCreate from './components/Threads/LinkCreate';
 import ThreadLinkEdit from './components/Threads/ThreadLinkEdit';
 import './App.css';
 
@@ -27,11 +30,15 @@ function App() {
             <Route path="/threads/new" component={ThreadCreate} />
             <Route path="/thread/:thread_id/edit" component={ThreadLinkEdit} />
             <Route path="/thread/:thread_id" component={SpecificThread} />
+            <Route path="/links/new" component={LinkCreate} />
             <Route path="/comments" component={CommentList} />
+            <Route path="/magazines/new" component={MagazineForm} />
+            <Route path="/magazines/:magazineId" component={MagazinePage} /> 
             <Route path="/magazines" component={MagazineList} />
             <Route path="/profile/edit" component={EditProfile} />
             <Route path="/profile/:userId" component={Profile} />
-          </Switch>
+            
+        </Switch>
 
         </div>
       </MainLayout>
