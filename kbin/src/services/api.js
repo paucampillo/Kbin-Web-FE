@@ -1,5 +1,6 @@
 // src/services/api.js
 import axios from 'axios'
+import Cookies from 'js-cookie';
 
 const BASE_URL = 'http://127.0.0.1:8000/api';
 const API_KEY = '2dab9c15f41ab219cc435c4d2f95162aa39c4841';
@@ -63,18 +64,91 @@ export const voteComment = async (commentId, voteType) => {
 };
 
 
-// Function to fetch magazines
-export const getMagazines = async (orderBy = 'subscriptions_count') => {
+export const getMagazine = async (magazineId) => {
   try {
-    const response = await fetch(`${BASE_URL}/magazines/?orderby=${orderBy}`, {
-      headers: {
-        'Authorization': `Token ${API_KEY}`, // Replace YOUR_API_KEY with actual API key
-      },
+    const headers = {
+      'Content-Type': 'application/json',
+    };
+    
+    // Verifica si hay un usuario autenticado
+    const userAuthenticated = API_KEY !== '';
+
+    // Si hay un usuario autenticado, agrega el token a los encabezados
+    if (userAuthenticated) {
+      headers['Authorization'] = `Token ${API_KEY}`;
+    }
+
+    const response = await fetch(`${BASE_URL}/magazines/${magazineId}/`, {
+      method: 'GET',
+      headers: headers,
     });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch magazine details');
+    }
+
+    const data = await response.json();
+    console.log("Data from getMagazine:", data); // Print data to console
+    return data;
+  } catch (error) {
+    console.error('Error fetching magazine details:', error);
+    throw error;
+  }
+};
+
+
+export const getMagazineThreads = async (magazineId, filter = 'all', orderBy = 'created_at') => {
+  try {
+    const headers = {
+      'Content-Type': 'application/json',
+    };
+    
+    // Incluir el encabezado Authorization si API_KEY está presente
+    const userAuthenticated = API_KEY !== '';
+    if (userAuthenticated) {
+      headers['Authorization'] = `Token ${API_KEY}`;
+    }
+
+    const response = await fetch(`${BASE_URL}/magazines/${magazineId}/threads/?filter=${filter}&order_by=${orderBy}`, {
+      method: 'GET', // Especificar el método GET
+      headers: headers,
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch magazine threads');
+    }
+
+    const data = await response.json();
+    console.log("Data from getMagazineThreads:", data); // Imprimir datos en la consola
+    return data;
+  } catch (error) {
+    console.error('Error fetching magazine threads:', error);
+    throw error;
+  }
+};
+
+// Function to fetch magazines
+export const getMagazines = async (orderBy = 'subscriptions_count', token ) => {
+  try {
+    const headers = {
+      'Content-Type': 'application/json',
+    };
+    token = API_KEY !== ''; 
+    if (token) {
+      headers['Authorization'] = `Token ${API_KEY}`;
+    }
+
+    const response = await fetch(`${BASE_URL}/magazines/?orderby=${orderBy}`, {
+      method: 'GET',
+      headers: headers,
+    });
+
     if (!response.ok) {
       throw new Error('Failed to fetch magazines');
     }
+
     const data = await response.json();
+    console.log('Data from getMagazines:', data); // Print data to console
     return data;
   } catch (error) {
     console.error('Error fetching magazines:', error);
@@ -82,14 +156,17 @@ export const getMagazines = async (orderBy = 'subscriptions_count') => {
   }
 };
 
+
 // Function to create a magazine
 export const createMagazine = async (magazineData) => {
   try {
+    const csrfToken = Cookies.get('csrftoken');
     const response = await fetch(`${BASE_URL}/magazines/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Token ${API_KEY}`, // Replace YOUR_API_KEY with actual API key
+        'Authorization': `Token ${API_KEY}`,
+        'X-CSRFToken': csrfToken // Agrega el token CSRF
       },
       body: JSON.stringify(magazineData),
     });
@@ -110,7 +187,8 @@ export const subscribeToMagazine = async (magazineId) => {
     const response = await fetch(`${BASE_URL}/magazines/${magazineId}/subscriptions/`, {
       method: 'POST',
       headers: {
-        'Authorization': `Token ${API_KEY}`, // Replace YOUR_API_KEY with actual API key
+        'Authorization': `Token ${API_KEY}`,
+        'Content-Type': 'application/json',
       },
     });
     if (!response.ok) {
@@ -128,7 +206,8 @@ export const unsubscribeFromMagazine = async (magazineId) => {
     const response = await fetch(`${BASE_URL}/magazines/${magazineId}/subscriptions/`, {
       method: 'DELETE',
       headers: {
-        'Authorization': `Token ${API_KEY}`, // Replace YOUR_API_KEY with actual API key
+        'Authorization': `Token ${API_KEY}`,
+        'Content-Type': 'application/json',
       },
     });
     if (!response.ok) {
@@ -160,6 +239,7 @@ export const getThreads = async (filter = 'all', orderBy = 'created_at', token =
     }
 
     const data = await response.json();
+    console.log('threads:', data); // Print data to console
     return data;
   } catch (error) {
     console.error('Error fetching threads:', error);
@@ -201,7 +281,32 @@ export const createThread = async (threadData) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Token ${API_KEY}`, // Replace YOUR_API_KEY with actual API key
+        'Authorization': `Token ${API_KEY}`,
+      },
+      body: JSON.stringify(threadData),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to create thread');
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error creating thread:', error);
+    throw error;
+  }
+};
+
+
+// Function to update a thread
+export const updateThreadLink = async (threadId, threadData) => {
+  try {
+    const response = await fetch(`${BASE_URL}/threads/${threadId}/`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${API_KEY}`,
       },
       body: JSON.stringify(threadData),
     });
