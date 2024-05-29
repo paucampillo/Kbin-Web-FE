@@ -52,6 +52,9 @@ const UserProfile = () => {
   const fetchThreads = useCallback(async () => {
     setError(null); // Resetea cualquier error previo
     try {
+      const profileData = await getProfile(userId);
+
+      const {threads} = profileData;
       const threadsWithTime = threads.map(thread => ({
         ...thread,
         time_since_creation: timeElapsed(thread.created_at),
@@ -62,13 +65,16 @@ const UserProfile = () => {
     } catch (error) {
       setError('Failed to fetch threads');
     }
-  }, [filter, order]);
+  }, [userId]);
 
   useEffect(() => { // Efecto secundario para obtener los threads
     fetchThreads(); // Ejecuta la función para obtener los threads
   }, [fetchThreads]); // Dependencias: vuelve a ejecutar el efecto si `order` o `filter` cambian
 
-
+  if (error) {
+    return <div>{error}</div>;
+  }
+  
   if (!profileUser) {
     return <div>Loading...</div>;
   }
@@ -85,7 +91,7 @@ const UserProfile = () => {
 
 
   return (
-    <body className="theme--dark" data-controller="kbin notifications" data-turbo="false">
+    <div className="theme--dark" data-controller="kbin notifications" data-turbo="false">
       <main>
         <div id="middle" className="page-user page-user-overview">
           <div className="kbin-container">
@@ -107,7 +113,7 @@ const UserProfile = () => {
         <footer id="footer"></footer>
       </main>
       <footer>{/* Optional footer content */}</footer>
-    </body>
+    </div>
   );
 };
 

@@ -466,7 +466,7 @@ export const getProfile = async (userId) => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        //'Authorization': `Token ${API_KEY}`,
+        'Authorization': `Token ${API_KEY}`,
       },
     });
 
