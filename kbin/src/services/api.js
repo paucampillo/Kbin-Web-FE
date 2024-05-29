@@ -1,5 +1,5 @@
 // src/services/api.js
-import axios from 'axios'
+//import axios from 'axios'
 import Cookies from 'js-cookie';
 
 const BASE_URL = 'http://127.0.0.1:8000/api';
@@ -462,11 +462,28 @@ export const getMyProfile = async () => {
 // Function to fetch profile details for a user
 export const getProfile = async (userId) => {
   try {
-    console.log(userId)
-    const response = await axios.get(`${BASE_URL}/profile/${userId}/`);
-    return response.data;
+    const response = await fetch(`${BASE_URL}/profile/${userId}/`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        //'Authorization': `Token ${API_KEY}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch profile');
+    }
+
+    const data = await response.json();
+    // Option 1: Directly logging the object
+    console.log("profileeeee", data);
+    
+
+    return data;
+
   } catch (error) {
-    throw new Error('Failed to fetch profile');
+    console.error('Error fetching profile:', error);
+    throw error;
   }
 };
 
