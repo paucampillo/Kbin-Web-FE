@@ -45,6 +45,24 @@ export const createComment = async (commentData) => {
   }
 };
 
+export const voteComment = async (commentId, voteType) => {
+  try {
+    const response = await fetch(`${BASE_URL}/comments/${commentId}/${voteType}/`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Token ${API_KEY}`, // Replace YOUR_API_KEY with actual API key
+      },
+    });
+    if (!response.ok) {
+      throw new Error('Failed to vote on comment');
+    }
+  } catch (error) {
+    console.error('Error voting on comment:', error);
+    throw error;
+  }
+};
+
+
 // Function to fetch magazines
 export const getMagazines = async (orderBy = 'subscriptions_count') => {
   try {
