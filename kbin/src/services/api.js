@@ -3,7 +3,7 @@ import axios from 'axios'
 import Cookies from 'js-cookie';
 
 const BASE_URL = 'http://127.0.0.1:8000/api';
-const API_KEY = '8ae00cc42060e8f25814474f6a47ed7d2c865461';
+const API_KEY = 'ed16845a3f4bbabac8daf8bab637891a3cbb5f11';
 
 // Function to fetch comments for a thread
 export const getComments = async (threadId, orderBy = 'newest') => {
@@ -51,7 +51,7 @@ export const getMagazine = async (magazineId) => {
     const headers = {
       'Content-Type': 'application/json',
     };
-    
+
     // Verifica si hay un usuario autenticado
     const userAuthenticated = API_KEY !== '';
 
@@ -84,7 +84,7 @@ export const getMagazineThreads = async (magazineId, filter = 'all', orderBy = '
     const headers = {
       'Content-Type': 'application/json',
     };
-    
+
     // Incluir el encabezado Authorization si API_KEY está presente
     const userAuthenticated = API_KEY !== '';
     if (userAuthenticated) {
@@ -110,12 +110,12 @@ export const getMagazineThreads = async (magazineId, filter = 'all', orderBy = '
 };
 
 // Function to fetch magazines
-export const getMagazines = async (orderBy = 'subscriptions_count', token ) => {
+export const getMagazines = async (orderBy = 'subscriptions_count', token) => {
   try {
     const headers = {
       'Content-Type': 'application/json',
     };
-    token = API_KEY !== ''; 
+    token = API_KEY !== '';
     if (token) {
       headers['Authorization'] = `Token ${API_KEY}`;
     }
@@ -299,6 +299,28 @@ export const updateThreadLink = async (threadId, threadData) => {
 
     const data = await response.json();
     return data;
+  } catch (error) {
+    console.error('Error creating thread:', error);
+    throw error;
+  }
+};
+
+
+// Function to delete a thread
+export const deleteThread = async (threadId) => {
+  try {
+    const response = await fetch(`${BASE_URL}/threads/${threadId}/`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${API_KEY}`,
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to create thread');
+    }
+
   } catch (error) {
     console.error('Error creating thread:', error);
     throw error;
