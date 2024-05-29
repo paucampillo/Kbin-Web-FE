@@ -6,20 +6,20 @@ const CommentBlock = ({ comment, level, user }) => {
     return (
         <blockquote className={`section comment entry-comment subject comment-level--${level} comment-has-children`} id={`entry-comment-${comment.id}`} data-controller="comment subject mentions" data-subject-parent-value="{{ parent_comment_id }}" data-action="" style={borderStyle}>
             <header>
-                <a href={`/profile/${comment.author.id}/`} className="user-inline" title={comment.author.username}>
+                <a href={`/profile/${comment.author.id}/`} class="user-inline" title={comment.author.username}>
                     {comment.author.username}
                 </a>
-                , <time className="timeago" title={comment.created_at} dateTime={comment.created_at}>{comment.time_since_creation}</time>
+                , <time class="timeago" title={comment.created_at} dateTime={comment.created_at}>{ comment.time_since_creation }</time>
                 {comment.is_edited && (
-                    <span className="edited">
-                        (edited <time className="timeago" title={comment.updated_at}>{comment.time_since_update} ago</time>)
+                    <span class="edited">
+                         (edited <time class="timeago" title={comment.updated_at}>{comment.time_since_update}</time>)
                     </span>
                 )}
             </header>
 
             <figure>
-                <a href={`/u/${comment.author.username}`}>
-                    <div className="no-avatar"></div>
+                <a href={`/u/${comment.author.username}`} data-action="mouseover->mentions#user_popup mouseout->mentions#user_popup_out" data-mentions-username-param="{{ comment.author }}">
+                    <div class="no-avatar"></div>
                 </a>
             </figure>
 

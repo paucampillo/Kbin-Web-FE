@@ -4,7 +4,6 @@ import Thread from './Thread';
 import CommentBlock from './CommentBlock';
 import { getThread, getComments } from '../../services/api';
 
-// Stub de momento
 const user = {
     id: 1,
     username: 'example_user',
@@ -12,10 +11,11 @@ const user = {
 };
 
 const SpecificThread = () => {
-    const { thread_id } = useParams(); // Obtiene el thread_id de los parámetros de la URL
+    const { thread_id } = useParams(); 
     const [thread, setThread] = useState(null);
     const [comments, setComments] = useState([]);
     const [error, setError] = useState(null);
+    const [orderBy, setOrderBy] = useState('likes'); // Estado para la opción de ordenación, por defecto 'likes'
 
     const fetchThread = useCallback(async () => {
         setError(null);
@@ -33,15 +33,21 @@ const SpecificThread = () => {
         }
     }, [thread_id]);
 
-    const fetchComments = useCallback(async () => {
+    const fetchComments = useCallback(async (order) => {
         setError(null);
         try {
-            const data = await getComments(thread_id, user.isAuthenticated);
+            const data = await getComments(thread_id, order, user.isAuthenticated);
             const commentsWithTime = data.map(comment => ({
                 ...comment,
                 time_since_creation: timeElapsed(comment.created_at),
                 time_since_update: timeElapsed(comment.updated_at),
                 is_edited: isEdited(comment.created_at, comment.updated_at),
+                replies: comment.replies ? comment.replies.map(reply => ({
+                    ...reply,
+                    time_since_creation: timeElapsed(reply.created_at),
+                    time_since_update: timeElapsed(reply.updated_at),
+                    is_edited: isEdited(reply.created_at, reply.updated_at),
+                })) : [],
             }));
             setComments(commentsWithTime);
         } catch (error) {
@@ -51,8 +57,13 @@ const SpecificThread = () => {
 
     useEffect(() => {
         fetchThread();
-        fetchComments();
-    }, [fetchThread, fetchComments]);
+        fetchComments(orderBy);
+    }, [fetchThread, fetchComments, orderBy]);
+
+    const handleOrderChange = (order) => {
+        setOrderBy(order);
+        fetchComments(order);
+    };
 
     if (error) {
         return <div>{error}</div>;
@@ -65,7 +76,6 @@ const SpecificThread = () => {
     return (
         <body className="theme--dark">
             <main>
-
                 <div id="content">
                     <Thread thread={thread} user={user} reloadThreads={fetchThread} showBody={true} />
                 </div>
@@ -90,13 +100,13 @@ const SpecificThread = () => {
                             <aside className="options options--top" id="options">
                                 <menu className="options__main no-scroll">
                                     <li>
-                                        <a href="?order_by=points" className="active">top</a>
+                                        <a href="#" className={orderBy === 'likes' ? 'active' : ''} onClick={() => handleOrderChange('likes')} >top</a>
                                     </li>
                                     <li>
-                                        <a href="?order_by=newest">newest</a>
+                                        <a href="#" className={orderBy === 'newest' ? 'active' : ''} onClick={() => handleOrderChange('newest')}>newest</a>
                                     </li>
                                     <li>
-                                        <a href="?order_by=oldest">oldest</a>
+                                        <a href="#" className={orderBy === 'oldest' ? 'active' : ''} onClick={() => handleOrderChange('oldest')}>oldest</a>
                                     </li>
                                 </menu>
                             </aside>
