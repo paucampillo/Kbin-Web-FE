@@ -4,7 +4,6 @@ import CommentList from './components/Comments/CommentList';
 import MagazineList from './components/Magazines/MagazineList';
 import ThreadList from './components/Threads/ThreadList';
 import SearchList from './components/Search/SearchList';
-import SearchResults from './components/Search/SearchResults';
 import Profile from './components/Profile/Profile';
 import EditProfile from './components/Profile/EditProfile';
 import MainLayout from './components/Layouts/MainLayout';
