@@ -78,6 +78,128 @@ export const getMagazine = async (magazineId) => {
   }
 };
 
+// Función para obtener los threads del usuario
+export const getUserThreads = async (userId, filter = 'all', orderBy = 'created_at') => {
+  try {
+    const headers = {
+      'Content-Type': 'application/json',
+    };
+    
+    // Incluir el encabezado Authorization si API_KEY está presente
+    const userAuthenticated = API_KEY !== '';
+    if (userAuthenticated) {
+      headers['Authorization'] = `Token ${API_KEY}`;
+    }
+
+    const response = await fetch(`${BASE_URL}/profile/${userId}/threads/?filter=${filter}&order_by=${orderBy}`, {
+      method: 'GET',
+      headers: headers,
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch user threads');
+    }
+
+    const data = await response.json();
+    console.log("Data from getUserThreads:", data); // Imprimir datos en la consola
+    return data;
+  } catch (error) {
+    console.error('Error fetching user threads:', error);
+    throw error;
+  }
+};
+
+// Función para obtener los comentarios del usuario
+export const getUserComments = async (userId, orderBy = 'newest') => {
+  try {
+    const headers = {
+      'Content-Type': 'application/json',
+    };
+
+    // Incluir el encabezado Authorization si API_KEY está presente
+    const userAuthenticated = API_KEY !== '';
+    if (userAuthenticated) {
+      headers['Authorization'] = `Token ${API_KEY}`;
+    }
+
+    const response = await fetch(`${BASE_URL}/profile/${userId}/comments/?order_by=${orderBy}`, {
+      method: 'GET',
+      headers: headers,
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch user comments');
+    }
+
+    const data = await response.json();
+    console.log("Data from getUserComments:", data); // Imprimir datos en la consola
+    return data;
+  } catch (error) {
+    console.error('Error fetching user comments:', error);
+    throw error;
+  }
+};
+
+// Función para obtener los boosts del usuario
+export const getUserBoosts = async (userId) => {
+  try {
+    const headers = {
+      'Content-Type': 'application/json',
+    };
+
+    // Incluir el encabezado Authorization si API_KEY está presente
+    const userAuthenticated = API_KEY !== '';
+    if (userAuthenticated) {
+      headers['Authorization'] = `Token ${API_KEY}`;
+    }
+
+    const response = await fetch(`${BASE_URL}/profile/${userId}/boosts/`, {
+      method: 'GET',
+      headers: headers,
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch user boosts');
+    }
+
+    const data = await response.json();
+    console.log("Data from getUserBoosts:", data); // Imprimir datos en la consola
+    return data;
+  } catch (error) {
+    console.error('Error fetching user boosts:', error);
+    throw error;
+  }
+};
+
+export const getUserInfo = async (userId) => {
+  try {
+    const headers = {
+      'Content-Type': 'application/json',
+    };
+
+    // Incluir el encabezado Authorization si API_KEY está presente
+    const userAuthenticated = API_KEY !== '';
+    if (userAuthenticated) {
+      headers['Authorization'] = `Token ${API_KEY}`;
+    }
+
+    const response = await fetch(`${BASE_URL}/profile/${userId}/info/`, {
+      method: 'GET',
+      headers: headers,
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch user info');
+    }
+
+    const data = await response.json();
+    console.log("Data from getUserInfo:", data); // Imprimir datos en la consola
+    return data;
+  } catch (error) {
+    console.error('Error fetching user info:', error);
+    throw error;
+  }
+};
 
 export const getMagazineThreads = async (magazineId, filter = 'all', orderBy = 'created_at') => {
   try {

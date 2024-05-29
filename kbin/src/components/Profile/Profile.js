@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
-import { getProfile } from '../../services/api'; // Adjust the import according to your file structure
+import { getUserInfo,getUserThreads,getUserBoosts,getUserComments} from '../../services/api'; // Adjust the import according to your file structure
 import UserHeader from './UserHeader';
 //import FilterMenu  from './FilterMenu';
 import OptionsMenu from './OptionsMenu';
@@ -15,9 +16,10 @@ const user = {
 };
 
 const UserProfile = () => {
+  const location = useLocation();
   const [profileUser, setProfileUser] = useState({});
   const [threads, setThreads] = useState([]);
-  const [commentsCount, setCommentsCount] = useState(0);
+  const [comments, setComments] = useState([]);
   const [boosts, setBoosts] = useState([]);
 
   //const [activeOrder, setActiveOrder] = useState('');
@@ -27,45 +29,53 @@ const UserProfile = () => {
   const [filter, setFilter] = useState('all');  // all, links, threads
   const [error, setError] = useState(null); // Estado para manejar errores
 
+
+  const isThreadsPage = location.pathname.includes('threads') || location.pathname === `/profile/${userId}` || location.pathname === `/profile/${userId}/`;
+
+  const isBoostsPage = location.pathname.includes('boosts');
+
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const profileData = await getProfile(userId);
-
+        const profileUserInfo = await getUserInfo(userId)
+        //const profileThreads = await getUserThreads(userId,filter,order)
+        
+        //const profileData = await getProfile(userId);
         // Desestructurar los datos recibidos para obtener las partes necesarias
-        const {threads, comments_count, boosts } = profileData;
-        setProfileUser(profileData);
-        setThreads(threads);
-        console.log(threads)
-        setCommentsCount(comments_count);
-        setBoosts(boosts);
-        //setActiveOrder(active_order);
-        //setActiveFilter(active_filter);
+        //const {threads, comments_count, boosts } = profileData;
+        setProfileUser(profileUserInfo);
+        //setThreads(profileThreads);
+
       } catch (error) {
         console.error('Error fetching profile:', error);
       }
     };
 
     fetchProfile();
-  }, [userId]);
+  }, [filter,order,userId]);
+
+
   // useCallback: evita potenciales bucles infinitos de renderizado
   const fetchThreads = useCallback(async () => {
     setError(null); // Resetea cualquier error previo
     try {
-      const profileData = await getProfile(userId);
-
-      const {threads} = profileData;
-      const threadsWithTime = threads.map(thread => ({
+      const profileBoosts = await getUserBoosts(userId)
+      const profileComments = await getUserComments(userId)
+      const profileThreads = await getUserThreads(userId,filter,order)
+      
+      const threadsWithTime = profileThreads.map(thread => ({
         ...thread,
         time_since_creation: timeElapsed(thread.created_at),
         time_since_update: timeElapsed(thread.updated_at),
         is_edited: isEdited(thread.created_at, thread.updated_at),
       }));
       setThreads(threadsWithTime); // Actualiza el estado de los threads con los datos obtenidos
+      setBoosts(profileBoosts);
+      setComments(profileComments);
     } catch (error) {
       setError('Failed to fetch threads');
     }
-  }, [userId]);
+  }, [filter,order,userId]);
 
   useEffect(() => { // Efecto secundario para obtener los threads
     fetchThreads(); // Ejecuta la función para obtener los threads
@@ -76,7 +86,10 @@ const UserProfile = () => {
   }
   
   if (!profileUser) {
-    return <div>Loading...</div>;
+    return <div>Loading..aaa.</div>;
+  }
+  if (!Object.keys(profileUser).length) {
+    return <div>Loading..</div>;
   }
 
   const isActive = (value, type) => {
@@ -97,16 +110,25 @@ const UserProfile = () => {
           <div className="kbin-container">
             <main id="main" data-controller="lightbox timeago" className="">
               <UserHeader profileUser={profileUser} />
-              <OptionsMenu profileUser={profileUser} threads={threads} commentsCount={commentsCount} boosts={boosts} />
-              <aside className="options options--top" id="options">
-              <Menu setOrder={setOrder} isActive={isActive} />
-              <Filters setFilter={setFilter} isActive={isActive} />
-            </aside>
-            <div id="content">
-              {threads.map(thread => (
-                <Thread key={thread.id} thread={thread} user={user} reloadThreads={fetchThreads} />
-              ))}
-            </div>
+              <OptionsMenu profileUser={profileUser} threadsCount={threads.length} commentsCount={comments.length} boostsCount={boosts.length} />
+              {isThreadsPage && (
+        <aside className="options options--top" id="options">
+          <Menu setOrder={setOrder} isActive={isActive} />
+          <Filters setFilter={setFilter} isActive={isActive} />
+        </aside>
+      )}
+      <div id="content">
+        {isThreadsPage && (
+          threads.map(thread => (
+            <Thread key={thread.id} thread={thread} user={user} reloadThreads={fetchThreads} />
+          ))
+        )}
+        {isBoostsPage && (
+          boosts.map(thread => (
+            <Thread key={thread.id} thread={thread} user={user} reloadThreads={fetchThreads} />
+          ))
+        )}
+      </div>
             </main>
           </div>
         </div>

@@ -1,8 +1,8 @@
 import React from 'react';
 
 const UserHeader = ({ profileUser }) => {
-  if (!profileUser || !profileUser.user || !profileUser.profile) {
-    return <div>Loading...</div>; // O algún tipo de indicador de carga
+  if (!profileUser || !profileUser.user) {
+    return <div>Loading...dddddddddd</div>; // O algún tipo de indicador de carga
   }
 
   return (
@@ -13,7 +13,7 @@ const UserHeader = ({ profileUser }) => {
             height="220"
             width="100%"
             className="cover"
-            src={profileUser.profile.cover}
+            src={profileUser.cover}
             alt={`@${profileUser.user.username}`}
           />
           <div className="user-main" id="content">
@@ -24,13 +24,13 @@ const UserHeader = ({ profileUser }) => {
                     width="100"
                     height="100"
                     style={{ maxWidth: '100px', maxHeight: '100px' }}
-                    src={profileUser.profile.avatar}
+                    src={profileUser.avatar}
                     alt={`@${profileUser.user.username} avatar`}
                   />
                 </figure>
                 <h1>{profileUser.user.username}</h1>
                 <small>{profileUser.user.email}</small>
-                <small>{profileUser.profile.bio}</small>
+                <small>{profileUser.bio}</small>
                 <small>API-Key: Token {profileUser.key}</small>
               </div>
             </div>

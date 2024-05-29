@@ -1,7 +1,7 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
 
-const OptionsMenu = ({ profileUser, threads, commentsCount, boosts }) => {
+const OptionsMenu = ({ profileUser, threadsCount, commentsCount, boostsCount }) => {
   const location = useLocation();
 
   const isActive = (path) => location.pathname === path ? 'active' : '';
@@ -17,7 +17,7 @@ const OptionsMenu = ({ profileUser, threads, commentsCount, boosts }) => {
       <menu className="options__main">
         <li>
           <a href={`/profile/${profileUser.user.id}/threads`} className={isActive(`/profile/${profileUser.user.id}/threads`) || isActive(`/profile/${profileUser.user.id}`)}>
-            threads ({threads.length})
+            threads ({threadsCount})
           </a>
         </li>
         <li>
@@ -28,7 +28,7 @@ const OptionsMenu = ({ profileUser, threads, commentsCount, boosts }) => {
         {(
           <li>
             <a href={`/profile/${profileUser.user.id}/boosts`} className={isActive(`/profile/${profileUser.user.id}/boosts`)}>
-              boosts ({boosts.length})
+              boosts ({boostsCount})
             </a>
           </li>
         )}
