@@ -1,7 +1,7 @@
 import React from 'react';
-import { boostThread, unboostThread, likeThread, unlikeThread, dislikeThread, undislikeThread } from '../../services/api';
+import { boostThread, unboostThread, likeThread, unlikeThread, dislikeThread, undislikeThread, deleteThread } from '../../services/api';
 
-const Thread = ({ thread, user, reloadThreads, showBody = false }) => {
+const Thread = ({ thread, user, reloadThreads, showBody = false, onDelete }) => {
 
     const handleBoost = async () => {
         try {
@@ -50,6 +50,17 @@ const Thread = ({ thread, user, reloadThreads, showBody = false }) => {
             reloadThreads(); // Recargar threads después de dislike/undislike
         } catch (error) {
             console.error('Error disliking thread:', error);
+        }
+    };
+
+    const handleDelete = async () => {
+        try {
+            await deleteThread(thread.id);
+            console.log('Thread deleted successfully');
+            reloadThreads();
+            onDelete();
+        } catch (error) {
+            console.error('Error deleting thread:', error);
         }
     };
 
@@ -133,9 +144,9 @@ const Thread = ({ thread, user, reloadThreads, showBody = false }) => {
                                 <a href={`/thread/${thread.id}/edit`}>Edit Thread or Link</a>
                             </li>
                             <li>
-                                <form action={`/api/threads/${thread.id}/delete`} method="post">
-                                    <input type="submit" value="Delete" />
-                                </form>
+                                <button onClick={handleDelete} className="delete-button" type="button">
+                                    Delete
+                                </button>
                             </li>
                         </>
                     )}
