@@ -55,6 +55,23 @@ const SearchList = () => {
     return '';
   };
 
+  const reloadThreads = async () => {
+    if (hasSearched) {
+      try {
+        const results = await search(query, order);
+        const resultsWithTime = results.map(thread => ({
+          ...thread,
+          time_since_creation: timeElapsed(thread.created_at),
+          time_since_update: timeElapsed(thread.updated_at),
+          is_edited: isEdited(thread.created_at, thread.updated_at),
+        }));
+        setSearchResults(resultsWithTime);
+      } catch (error) {
+        console.error('Error reloading threads:', error);
+      }
+    }
+  };
+
   return (
     <div>
       <div className="section section--top">
@@ -98,7 +115,7 @@ const SearchList = () => {
           </div>
         ) : (
           searchResults.map((thread) => (
-            <Thread key={thread.id} thread={thread} user={user} />
+            <Thread key={thread.id} thread={thread} user={user} reloadThreads={reloadThreads} />
           ))
         )}
       </div>
