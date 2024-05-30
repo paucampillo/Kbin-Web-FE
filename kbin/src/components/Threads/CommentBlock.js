@@ -1,32 +1,28 @@
-import React, { useState } from 'react';
-import { createComment, getComments } from '../../services/api'; // Asegúrate de importar getComments desde el lugar correcto
+import React, { useEffect, useState } from 'react';
+import { deleteReply, getComments } from '../../services/api'; // Asegúrate de importar getComments desde el lugar correcto
 
-const CommentBlock = ({ comment, level, user }) => {
+const CommentBlock = ({ comment, level, user, fetchComments }) => {
 
-    const [replyBody, setReplyBody] = useState(''); // Define replyBody y setReplyBody como estados
+    const [replies, setReplies] = useState(comment.replies || []);
+    const borderStyle = level > 10 ? { borderLeft: '1px solid #7e8f99', marginLeft: `calc(${level} * 1rem)` } : {};
 
-    const handleReplySubmit = async (e) => {
-        e.preventDefault();
-        const replyData = {
-            body: replyBody,
-            thread_id: comment.thread_id, 
-            parent_comment: comment.id || null,
-            parent_reply: null,
-        };
+    useEffect(() => {
+        setReplies(comment.replies || []);
+    }, [comment.replies]);
+
+    const handleDeleteReply = async (reply_id) => {
         try {
-            const response = await createComment(replyData);
-            console.log('Reply created successfully:', response);
-            setReplyBody('');
-            const updatedComments = await getComments(comment.thread_id, 'likes', user.isAuthenticated); // Corrige el orden en el que se pasan los parámetros
+            await deleteReply(reply_id);
+            console.log('Reply deleted successfully');
+            const updatedComments = await getComments(comment.thread_id, 'top', user.isAuthenticated); // Corrige el orden en el que se pasan los parámetros
             setReplies(updatedComments);
-        } catch (error) {
-            console.error('Error creating reply:', error);
+            await fetchComments();
+        }
+        catch (error) {
+            console.error('Error deleting reply:', error);
         }
     };
 
-    const [replies, setReplies] = useState([]); // Define replies como un estado
-
-    const borderStyle = level > 10 ? { borderLeft: '1px solid #7e8f99', marginLeft: `calc(${level} * 1rem)` } : {};
 
     return (
         <blockquote className={`section comment entry-comment subject comment-level--${level} comment-has-children`} id={`entry-comment-${comment.id}`} data-controller="comment subject mentions" data-subject-parent-value="{{ parent_comment_id }}" data-action="" style={borderStyle}>
@@ -78,34 +74,33 @@ const CommentBlock = ({ comment, level, user }) => {
                     {comment.author.username === user.username && (
                         <>
                             <li>
-                                <a href={`/reply_edit/${comment.thread_id}/${comment.id}`} className="edit-comment-link">
+                                <a href={`/reply_edit/${comment.thread_id}/${comment.parent_comment || comment.id}/${comment.id}`} className="edit-comment-link">
                                     Edit
                                 </a>
                             </li>
                             <li>
-                                <form action={`/reply_delete/${comment.id}/${comment.thread_id}`} method="post">
-                                    <button type="submit">
+                               
+                                    <button type="submit" onClick={() => handleDeleteReply(comment.id)}>
                                         Delete
                                     </button>
-                                </form>
+                                
                             </li>
                         </>
                     )}
                 </menu>
             </footer>
 
-            {comment.replies && comment.replies.length > 0 &&
-                comment.replies.map(reply => 
+            {replies && replies.length > 0 &&
+                replies.map(reply => 
                 (reply.author === reply.user) && 
-            <CommentBlock 
-            key={reply.id} 
-            comment={reply} 
-            level={level + 1} 
-            parentCommentId={comment.id} 
-            user={user}
-            />
-        )
-        }
+                <CommentBlock 
+                    key={reply.id} 
+                    comment={reply} 
+                    level={level + 1} 
+                    parentCommentId={comment.id} 
+                    user={user}
+                />
+            )}
         </blockquote>
     );
 };

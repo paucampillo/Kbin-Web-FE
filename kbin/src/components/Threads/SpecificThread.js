@@ -2,11 +2,11 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import Thread from './Thread';
 import CommentBlock from './CommentBlock';
-import { getThread, getComments, createComment } from '../../services/api';
+import { getThread, getComments, createComment, deleteComment, deleteReply } from '../../services/api';
 
 const user = {
     id: 1,
-    username: 'example_user',
+    username: 'pau',
     isAuthenticated: true,
 };
 
@@ -15,9 +15,8 @@ const SpecificThread = () => {
     const [thread, setThread] = useState(null);
     const [comments, setComments] = useState([]);
     const [error, setError] = useState(null);
-    const [orderBy, setOrderBy] = useState('likes'); // Estado para la opción de ordenación, por defecto 'likes'
+    const [orderBy, setOrderBy] = useState('likes');
     const [body, setBody] = useState('');
-
 
     const fetchThread = useCallback(async () => {
         setError(null);
@@ -82,10 +81,17 @@ const SpecificThread = () => {
         }
     };
 
-
-    const handleDelete = () => {
-        window.location.href = '/threads'; // Redirigir a la lista de threads después de eliminar
+    const handleDeleteComment = async (comment_id) => {
+        try {
+            await deleteComment(comment_id);
+            console.log('Comment deleted successfully');
+            fetchComments(orderBy);
+        } catch (error) {
+            console.error('Error deleting comment:', error);
+        }
     };
+
+
 
     if (error) {
         return <div>{error}</div>;
@@ -99,16 +105,13 @@ const SpecificThread = () => {
         <body className="theme--dark">
             <main>
                 <div id="content">
-                    <Thread thread={thread} user={user} reloadThreads={fetchThread} showBody={true} onDelete={handleDelete} />
+                    <Thread thread={thread} user={user} reloadThreads={fetchThread} showBody={true} onDelete={() => window.location.href = '/threads'} />
                 </div>
 
                 <div id="comment-add" className="section">
                     <form action={`/create_comment/${thread.id}`} onSubmit={handleSubmit} name="entry_comment" method="post" className="entry-create">
                         <label htmlFor="comment_body">Comment:</label>
-                        <textarea id="comment_body" name="body" required value={body} onChange={(e) => setBody(e.target.value)}
-                        style={{ overflow: 'hidden', height: '70px' }}>
-
-                        </textarea>
+                        <textarea id="comment_body" name="body" required value={body} onChange={(e) => setBody(e.target.value)} style={{ overflow: 'hidden', height: '70px' }}></textarea>
                         <div className="row actions">
                             <ul>
                                 <li>
@@ -125,7 +128,7 @@ const SpecificThread = () => {
                             <aside className="options options--top" id="options">
                                 <menu className="options__main no-scroll">
                                     <li>
-                                        <a href="#" className={orderBy === 'likes' ? 'active' : ''} onClick={() => handleOrderChange('likes')} >top</a>
+                                        <a href="#" className={orderBy === 'likes' ? 'active' : ''} onClick={() => handleOrderChange('likes')}>top</a>
                                     </li>
                                     <li>
                                         <a href="#" className={orderBy === 'newest' ? 'active' : ''} onClick={() => handleOrderChange('newest')}>newest</a>
@@ -141,12 +144,9 @@ const SpecificThread = () => {
                                         <header>
                                             <a href={`/profile/${comment.author.id}/`} className="user-inline" title={comment.author.username}>
                                                 {comment.author.username}
-                                            </a>
-                                            , <time className="timeago" title={comment.created_at} dateTime={comment.created_at}>{comment.time_since_creation}</time>
+                                            </a>, <time className="timeago" title={comment.created_at} dateTime={comment.created_at}>{comment.time_since_creation}</time>
                                             {comment.is_edited && comment.created_at !== comment.updated_at && (
-                                                <span className="edited">
-                                                    (edited <time className="timeago" title={comment.updated_at}>{comment.time_since_update} ago</time>)
-                                                </span>
+                                                <span className="edited">(edited <time className="timeago" title={comment.updated_at}>{comment.time_since_update} ago</time>)</span>
                                             )}
                                         </header>
 
@@ -187,9 +187,7 @@ const SpecificThread = () => {
                                                             <a href={`/reply_edit/${comment.thread_id}/${comment.id}`} className="edit-comment-link">Edit</a>
                                                         </li>
                                                         <li>
-                                                            <form action={`/reply_delete/${comment.id}/${comment.thread_id}`} method="post">
-                                                                <button type="submit">Delete</button>
-                                                            </form>
+                                                            <button onClick={() => handleDeleteComment(comment.id)}>Delete</button>
                                                         </li>
                                                     </>
                                                 )}
@@ -197,7 +195,7 @@ const SpecificThread = () => {
                                         </footer>
                                     </blockquote>
                                     {comment.replies && comment.replies.length > 0 && comment.replies.map(reply => (
-                                        <CommentBlock key={reply.id} comment={reply} level={reply.reply_level + 1} user={user} parentReply={reply.parent_reply_id} profileView={false} />
+                                        <CommentBlock key={reply.id} comment={reply} level={reply.reply_level + 1} user={user} parentReply={reply.parent_reply_id} profileView={false} fetchComments={fetchComments}/>
                                     ))}
                                 </React.Fragment>
                             ))}
