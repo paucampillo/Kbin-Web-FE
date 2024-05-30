@@ -6,7 +6,7 @@ import OptionsMenu from './OptionsMenu';
 import Menu from '../Threads/Menu';
 import Filters from '../Threads/Filters';
 import Thread from '../Threads/Thread';
-import Comments from './Comments';
+import CommentBlock from '../Threads/CommentBlock';
 
 const user = {
   id: 1,
@@ -20,11 +20,14 @@ const UserProfile = () => {
   const [threads, setThreads] = useState([]);
   const [comments, setComments] = useState([]);
   const [boosts, setBoosts] = useState([]);
+  const [commentsCount, setCommentsCount] = useState(0); // Estado para almacenar el conteo total de comentarios y respuestas
 
+  //const { thread_id } = useParams(); 
   const { userId } = useParams(); // Assuming you're using a route parameter for userId
   const [order, setOrder] = useState('points'); // points, created_at, num_comments
   const [filter, setFilter] = useState('all');  // all, links, threads
   const [error, setError] = useState(null); // Estado para manejar errores
+  const [orderBy, setOrderBy] = useState('likes'); // Estado para la opción de ordenación, por defecto 'likes'
 
   const isThreadsPage = location.pathname.includes('threads') || location.pathname === `/profile/${userId}`;
   const isBoostsPage = location.pathname.includes('boosts');
@@ -57,6 +60,7 @@ const UserProfile = () => {
         is_edited: isEdited(thread.created_at, thread.updated_at),
       }));
 
+
       setThreads(threadsWithTime);
       setBoosts(profileBoosts);
       setComments(profileComments);
@@ -64,10 +68,45 @@ const UserProfile = () => {
       setError('Failed to fetch threads');
     }
   }, [filter, order, userId]);
+  
+  const handleOrderChange = (order) => {
+    setOrderBy(order);
+    fetchComments(order);
+  };
+
+  const fetchComments = useCallback(async (order) => {
+    setError(null);
+
+    try {
+      const data = await getUserComments(userId, order);
+      const commentsWithTime = data.map(comment => ({
+        ...comment,
+        time_since_creation: timeElapsed(comment.created_at),
+        time_since_update: timeElapsed(comment.updated_at),
+        is_edited: isEdited(comment.created_at, comment.updated_at),
+        replies: comment.replies ? comment.replies.map(reply => ({
+          ...reply,
+          time_since_creation: timeElapsed(reply.created_at),
+          time_since_update: timeElapsed(reply.updated_at),
+          is_edited: isEdited(reply.created_at, reply.updated_at),
+        })) : [],
+      }));
+      setComments(commentsWithTime);
+      // Calcular el conteo total de comentarios y respuestas
+      const totalCommentsCount = data.reduce((sum, comment) => {
+        return sum + 1 + (comment.replies ? comment.replies.length : 0);
+      }, 0);
+      setCommentsCount(totalCommentsCount);
+
+    } catch (error) {
+      setError('Failed to fetch comments');
+    }
+  }, [userId]);
 
   useEffect(() => {
     fetchThreads();
-  }, [fetchThreads]);
+    fetchComments(orderBy);
+  }, [fetchThreads,fetchComments,orderBy]);
 
   if (error) {
     return <div>{error}</div>;
@@ -94,7 +133,7 @@ const UserProfile = () => {
           <div className="kbin-container">
             <main id="main" data-controller="lightbox timeago" className="">
               <UserHeader profileUser={profileUser} />
-              <OptionsMenu profileUser={profileUser} threadsCount={threads.length} commentsCount={comments.length} boostsCount={boosts.length} />
+              <OptionsMenu profileUser={profileUser} threadsCount={threads.length} commentsCount={commentsCount} boostsCount={boosts.length} />
               {isThreadsPage && (
                 <aside className="options options--top" id="options">
                   <Menu setOrder={setOrder} isActive={isActive} />
@@ -108,7 +147,106 @@ const UserProfile = () => {
                 {isBoostsPage && boosts.map(thread => (
                   <Thread key={thread.id} thread={thread} user={user} reloadThreads={fetchThreads} />
                 ))}
-                {isCommentsPage}
+                {isCommentsPage && (
+                  <div id="content">
+                    {comments && comments.length > 0 ? (
+                      <section id="comments" className="comments entry-comments comments-tree" data-controller="" data-action="">
+                        <aside className="options options--top" id="options">
+                          <menu className="options__main no-scroll">
+                            <li>
+                              <a href="#likes" className={orderBy === 'likes' ? 'active' : ''} onClick={() => handleOrderChange('likes')}>top</a>
+                            </li>
+                            <li>
+                              <a href="#newest" className={orderBy === 'newest' ? 'active' : ''} onClick={() => handleOrderChange('newest')}>newest</a>
+                            </li>
+                            <li>
+                              <a href="#oldest" className={orderBy === 'oldest' ? 'active' : ''} onClick={() => handleOrderChange('oldest')}>oldest</a>
+                            </li>
+                          </menu>
+                        </aside>
+                        {comments.map(comment => (
+                          <React.Fragment key={comment.id}>
+                            <blockquote className="section comment entry-comment subject comment-level--1" id={`entry-comment-${comment.id}`} data-controller="comment subject mentions" data-subject-parent-value="" data-action="">
+                              <header>
+                                <a href={`/profile/${comment.author.id}`} className="user-inline" title={comment.author.username}>
+                                  {comment.author.username}
+                                </a>
+
+                                , <time className="timeago" title={comment.created_at}>{" "}{comment.time_since_creation}</time>
+                                {comment.is_edited && comment.created_at !== comment.updated_at && (
+                                  <span className="edited">
+                                    (edited <time className="timeago" title={comment.updated_at}>{comment.time_since_update} ago to</time>)
+                                  </span>
+                                )}
+                                {comment.thread_id ? (
+                                  <a href={`/thread/${comment.thread_id}`} className="magazine-inline">{" " + comment.thread_id + " "}</a>
+                                ) : (
+                                  'Unknown thread'
+                                )}
+                                in
+                                {comment.magazine && comment.magazine.name ? (
+                                  <a href={`/magazine/${comment.magazine.id}`} className="magazine-inline">{" " + comment.magazine.name}</a>
+                                ) : (
+                                  'Unknown magazine'
+                                )}
+                              </header>
+                              <figure>
+                                <a href={`/u/${comment.author.username}`}>
+                                  <div className="no-avatar"></div>
+                                </a>
+                              </figure>
+                              <div className="content">
+                                <p>{comment.body}</p>
+                              </div>
+                              <aside className="vote">
+                                <form method="post" action={`/reply_vote/${comment.id}`} className="vote__up">
+                                  <button type="submit" title="Favorite" aria-label="Favorite">
+                                    <span>{comment.num_likes}</span>
+                                    <span role="img" aria-label="thumb-up">&#128077;</span>
+                                  </button>
+                                </form>
+                                <form method="post" action={`/reply_vote/${comment.id}`} className="vote__down">
+                                  <button type="submit" title="Reduce" aria-label="Reduce">
+                                    <span>{comment.num_dislikes}</span>
+                                    <span role="img" aria-label="thumb-down">&#128078;</span>
+                                  </button>
+                                </form>
+                              </aside>
+                              <footer>
+                                <menu>
+                                  <li>
+                                    <a href={`/reply_comment/${comment.thread_id}/${comment.parent_comment || comment.id}/${comment.id}`} className="edit-comment-link">reply</a>
+                                  </li>
+                                  {comment.author.username === user.username && (
+                                    <>
+                                      <li>
+                                        <a href={`/reply_edit/${comment.thread_id}/${comment.id}`} className="edit-comment-link">Edit</a>
+                                      </li>
+                                      <li>
+                                        <form action={`/reply_delete/${comment.id}/${comment.thread_id}`} method="post">
+                                          <button type="submit">Delete</button>
+                                        </form>
+                                      </li>
+                                    </>
+                                  )}
+                                </menu>
+                              </footer>
+                            </blockquote>
+                            {comment.replies && comment.replies.length > 0 && comment.replies.map(reply => (
+                              <CommentBlock key={reply.id} comment={reply} level={reply.reply_level + 1} user={user} parentReply={reply.parent_reply_id} profileView={false} />
+                            ))}
+                          </React.Fragment>
+                        ))}
+                      </section>
+                    ) : (
+                      <div className="overview subjects comments-tree comments show-post-avatar">
+                        <aside className="section section--muted">
+                          <p>No comments</p>
+                        </aside>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </main>
           </div>
@@ -119,8 +257,6 @@ const UserProfile = () => {
     </div>
   );
 };
-
-export default UserProfile;
 
 const timeElapsed = (createdAt) => {
   const now = new Date();
@@ -146,3 +282,5 @@ const timeElapsed = (createdAt) => {
 const isEdited = (createdAt, updatedAt) => {
   return new Date(createdAt).getTime() !== new Date(updatedAt).getTime();
 };
+
+export default UserProfile;
