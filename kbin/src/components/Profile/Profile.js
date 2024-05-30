@@ -108,7 +108,7 @@ const UserProfile = () => {
                 {isBoostsPage && boosts.map(thread => (
                   <Thread key={thread.id} thread={thread} user={user} reloadThreads={fetchThreads} />
                 ))}
-                {isCommentsPage && <Comments comments={comments} user={user} />}
+                {isCommentsPage}
               </div>
             </main>
           </div>
