@@ -470,6 +470,11 @@ export const likeComment = async (commentId) => {
         'Authorization': `Token ${API_KEY}`,
       },
     });
+
+    if (!response.ok) {
+      throw new Error('Failed to like comment');
+    }
+
   } catch (error) {
     console.error('Error liking comment:', error);
     throw error;
@@ -485,6 +490,11 @@ export const dislikeComment = async (commentId) => {
         'Authorization': `Token ${API_KEY}`,
       },
     });
+
+    if (!response.ok) {
+      throw new Error('Failed to dislike comment');
+    }
+
   } catch (error) {
     console.error('Error disliking comment: ',error);
     throw error;
@@ -500,6 +510,11 @@ export const unlikeComment = async (commentId) => {
         'Authorization': `Token ${API_KEY}`,
       },
     });
+
+    if (!response.ok) {
+      throw new Error('Failed to like comment');
+    }
+
   } catch (error) {
     console.error('Error unliking comment:', error);
     throw error;
@@ -515,6 +530,11 @@ export const undislikeComment = async (commentId) => {
         'Authorization': `Token ${API_KEY}`,
       },
     });
+
+    if (!response.ok) {
+      throw new Error('Failed to dislike comment');
+    }
+
   } catch (error) {
     console.error('Error undisliking comment:', error);
     throw error;
@@ -531,6 +551,11 @@ export const likeReply = async (replyId) => {
         'Authorization': `Token ${API_KEY}`,
       },
     });
+
+    if (!response.ok) {
+      throw new Error('Failed to like reply');
+    }
+
   } catch (error) {
     console.error('Error liking reply: ',error);
     throw error;
@@ -546,6 +571,11 @@ export const dislikeReply = async (replyId) => {
         'Authorization': `Token ${API_KEY}`,
       },
     });
+
+    if (!response.ok) {
+      throw new Error('Failed to dislike reply');
+    }
+
   } catch (error) {
     console.error('Error disliking reply: ',error);
     throw error;
@@ -561,6 +591,11 @@ export const unlikeReply = async (replyId) => {
         'Authorization': `Token ${API_KEY}`,
       },
     });
+
+    if (!response.ok) {
+      throw new Error('Failed to like reply');
+    }
+
   } catch (error) {
     console.error('Error unliking reply:', error);
     throw error;
@@ -576,6 +611,11 @@ export const undislikeReply = async (replyId) => {
         'Authorization': `Token ${API_KEY}`,
       },
     });
+
+    if (!response.ok) {
+      throw new Error('Failed to dislike reply');
+    }
+    
   } catch (error) {
     console.error('Error undisliking reply:', error);
     throw error;

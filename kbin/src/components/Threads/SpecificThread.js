@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import Thread from './Thread';
 import CommentBlock from './CommentBlock';
-import { getThread, getComments, createComment, deleteComment, deleteReply, likeComment, getComment, unlikeComment, undislikeComment, dislikeComment } from '../../services/api';
+import { getThread, getComments, createComment, deleteComment, likeComment, getComment, unlikeComment, undislikeComment, dislikeComment } from '../../services/api';
 
 const user = {
     id: 1,
@@ -60,7 +60,7 @@ const SpecificThread = () => {
                 is_edited: isEdited(comment.created_at, comment.updated_at),
             }));
 
-            setComments(parentCommentsWithTime);
+            setComments(commentsWithTime);
         } catch (error) {
             setError('Failed to fetch comments');
         }

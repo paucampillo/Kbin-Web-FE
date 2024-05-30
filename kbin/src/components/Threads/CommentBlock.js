@@ -3,7 +3,6 @@ import { deleteReply, getComments, getReply, likeReply, unlikeReply, dislikeRepl
 
 const CommentBlock = ({ comment, level, user, fetchComments }) => {
 
-    const [replyBody, setReplyBody] = useState(''); // Define replyBody y setReplyBody como estados
     const [replies, setReplies] = useState(comment.replies || []);
     const borderStyle = level > 10 ? { borderLeft: '1px solid #7e8f99', marginLeft: `calc(${level} * 1rem)` } : {};
 
@@ -11,25 +10,6 @@ const CommentBlock = ({ comment, level, user, fetchComments }) => {
         setReplies(comment.replies || []);
     }, [comment.replies]);
 
-
-    const handleReplySubmit = async (e) => {
-        e.preventDefault();
-        const replyData = {
-            body: replyBody,
-            thread_id: comment.thread_id, 
-            parent_comment: comment.id || null,
-            parent_reply: null,
-        };
-        try {
-            const response = await createComment(replyData);
-            console.log('Reply created successfully:', response);
-            setReplyBody('');
-            const updatedComments = await getComments(comment.thread_id, 'likes', user.isAuthenticated); // Corrige el orden en el que se pasan los parámetros
-            setReplies(updatedComments);
-        } catch (error) {
-            console.error('Error creating reply:', error);
-        }
-    };
 
     const handleDeleteReply = async (reply_id) => {
         try {
@@ -47,36 +27,40 @@ const CommentBlock = ({ comment, level, user, fetchComments }) => {
     const handleLikeReply = async (reply_id) => {
         try {
             let replyData = await getReply(reply_id);
+            console.log('Reply data:', replyData);
             if (replyData.user_has_liked) {
                 await unlikeReply(reply_id);
-                console.log('Reply unliked successfully');
+                console.log('Reply unliked successfully', reply_id);
             } else {
                 await likeReply(reply_id);
-                console.log('Reply liked successfully');
+                console.log('Reply liked successfully', reply_id);
             }
+            console.log('Replies:', replyData);
             const updatedReplyData = await getReply(reply_id);
             setReplies(replies.map(reply => reply.id === reply_id ? updatedReplyData : reply));
             fetchComments();
         } catch (error) {
-            console.error('Error liking reply:', error);
+            console.error('Error liking reply:', reply_id, error);
         }
     };
 
     const handleDislikeReply = async (reply_id) => {
         try {
             const replyData = await getReply(reply_id);
+            console.log('Reply data:', replyData);
             if (replyData.user_has_disliked) {
                 await undislikeReply(reply_id);
-                console.log('Reply undisliked successfully');
+                console.log('Reply undisliked successfully', reply_id);
             } else {
                 await dislikeReply(reply_id);
-                console.log('Reply disliked successfully');
+                console.log('Reply disliked successfully', reply_id);
             }
+            console.log('Replies:', replyData);
             const updatedReplyData = await getReply(reply_id);
             setReplies(replies.map(reply => reply.id === reply_id ? updatedReplyData : reply));
             fetchComments();
         } catch (error) {
-            console.error('Error disliking reply:', error);
+            console.error('Error disliking reply:', reply_id, error);
         }
     };
 
