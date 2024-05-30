@@ -109,7 +109,7 @@ const Thread = ({ thread, user, reloadThreads, showBody = false, onDelete }) => 
                     </span>
                 )}
                 {" "}to{" "}
-                <a href={`/magazine/${thread.magazine.id}`} className="magazine-inline">
+                <a href={`/magazines/${thread.magazine.id}`} className="magazine-inline">
                     {thread.magazine.name}
                 </a>
             </aside>
