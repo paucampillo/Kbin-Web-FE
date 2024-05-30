@@ -74,6 +74,8 @@ const SpecificThread = () => {
             const newComment = await createComment(commentData);
             console.log('Comment created successfully:', newComment);
             setBody('');
+            const updatedComments = await getComments(thread_id, orderBy, user.isAuthenticated);
+            setComments(updatedComments);
             fetchComments(orderBy);
         } catch (error) {
             console.error('Error creating comment:', error);
