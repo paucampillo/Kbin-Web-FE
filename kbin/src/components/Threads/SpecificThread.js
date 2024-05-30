@@ -65,6 +65,10 @@ const SpecificThread = () => {
         fetchComments(order);
     };
 
+    const handleDelete = () => {
+        window.location.href = '/threads'; // Redirigir a la lista de threads después de eliminar
+    };
+
     if (error) {
         return <div>{error}</div>;
     }
@@ -77,7 +81,7 @@ const SpecificThread = () => {
         <body className="theme--dark">
             <main>
                 <div id="content">
-                    <Thread thread={thread} user={user} reloadThreads={fetchThread} showBody={true} />
+                    <Thread thread={thread} user={user} reloadThreads={fetchThread} showBody={true} onDelete={handleDelete} />
                 </div>
 
                 <div id="comment-add" className="section">
