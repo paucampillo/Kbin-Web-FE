@@ -461,6 +461,67 @@ export const deleteThread = async (threadId) => {
   }
 };
 
+export const likeComment = async (commentId) => {
+  try {
+    const response = await fetch(`${BASE_URL}/comments/${commentId}/likes/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${API_KEY}`,
+      },
+    });
+  } catch (error) {
+    console.error('Error liking comment:', error);
+    throw error;
+  }
+};
+
+export const dislikeComment = async (commentId) => {
+  try {
+    const response = await fetch(`${BASE_URL}/comments/${commentId}/dislikes/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${API_KEY}`,
+      },
+    });
+  } catch (error) {
+    console.error('Error disliking comment: ',error);
+    throw error;
+  }
+};
+
+export const likeReply = async (replyId) => {
+  try {
+    const response = await fetch(`${BASE_URL}/replies/${replyId}/likes/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${API_KEY}`,
+      },
+    });
+  } catch (error) {
+    console.error('Error liking reply: ',error);
+    throw error;
+  }
+};
+
+export const dislikeReply = async (replyId) => {
+  try {
+    const response = await fetch(`${BASE_URL}/replies/${replyId}/dislikes/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${API_KEY}`,
+      },
+    });
+  } catch (error) {
+    console.error('Error disliking reply: ',error);
+    throw error;
+  }
+};
+
+
 
 // Function boost a thread
 export const boostThread = async (threadId) => {
