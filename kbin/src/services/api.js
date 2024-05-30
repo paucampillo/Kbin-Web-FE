@@ -3,7 +3,7 @@
 import Cookies from 'js-cookie';
 
 const BASE_URL = 'http://127.0.0.1:8000/api';
-const API_KEY = '8ae00cc42060e8f25814474f6a47ed7d2c865461';
+const API_KEY = '2dab9c15f41ab219cc435c4d2f95162aa39c4841';
 
 // Function to fetch comments for a thread
 export const getComments = async (threadId, orderBy = 'newest') => {
@@ -46,12 +46,30 @@ export const createComment = async (commentData) => {
   }
 };
 
+export const voteComment = async (commentId, voteType) => {
+  try {
+    const response = await fetch(`${BASE_URL}/comments/${commentId}/${voteType}/`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Token ${API_KEY}`, // Replace YOUR_API_KEY with actual API key
+      },
+    });
+    if (!response.ok) {
+      throw new Error('Failed to vote on comment');
+    }
+  } catch (error) {
+    console.error('Error voting on comment:', error);
+    throw error;
+  }
+};
+
+
 export const getMagazine = async (magazineId) => {
   try {
     const headers = {
       'Content-Type': 'application/json',
     };
-    
+
     // Verifica si hay un usuario autenticado
     const userAuthenticated = API_KEY !== '';
 
@@ -206,7 +224,7 @@ export const getMagazineThreads = async (magazineId, filter = 'all', orderBy = '
     const headers = {
       'Content-Type': 'application/json',
     };
-    
+
     // Incluir el encabezado Authorization si API_KEY está presente
     const userAuthenticated = API_KEY !== '';
     if (userAuthenticated) {
@@ -232,12 +250,12 @@ export const getMagazineThreads = async (magazineId, filter = 'all', orderBy = '
 };
 
 // Function to fetch magazines
-export const getMagazines = async (orderBy = 'subscriptions_count', token ) => {
+export const getMagazines = async (orderBy = 'subscriptions_count', token) => {
   try {
     const headers = {
       'Content-Type': 'application/json',
     };
-    token = API_KEY !== ''; 
+    token = API_KEY !== '';
     if (token) {
       headers['Authorization'] = `Token ${API_KEY}`;
     }
@@ -421,6 +439,28 @@ export const updateThreadLink = async (threadId, threadData) => {
 
     const data = await response.json();
     return data;
+  } catch (error) {
+    console.error('Error creating thread:', error);
+    throw error;
+  }
+};
+
+
+// Function to delete a thread
+export const deleteThread = async (threadId) => {
+  try {
+    const response = await fetch(`${BASE_URL}/threads/${threadId}/`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${API_KEY}`,
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to create thread');
+    }
+
   } catch (error) {
     console.error('Error creating thread:', error);
     throw error;
@@ -630,5 +670,27 @@ export const updateProfile = async (userId, profileData) => {
     throw error;
   }
 };
+
+export const search = async (query, orderBy = 'newest') => {
+  try {
+    const response = await fetch(`${BASE_URL}/search/?query=${query}&order_by=${orderBy}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${API_KEY}`, // Replace YOUR_API_KEY with actual API key
+      },
+    });
+    if (!response.ok) {
+      throw new Error('Failed to search');
+    }
+    const data = await response.json();
+    return data;
+  }
+  catch (error) {
+    console.error('Error searching:', error);
+    throw error;
+  }
+}
+
 
 // Function to update

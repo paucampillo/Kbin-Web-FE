@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import Thread from './Thread';
-import { getThread } from '../../services/api';
+import CommentBlock from './CommentBlock';
+import { getThread, getComments, createComment } from '../../services/api';
 
-// Stub de momento
 const user = {
     id: 1,
     username: 'example_user',
@@ -11,9 +11,13 @@ const user = {
 };
 
 const SpecificThread = () => {
-    const { thread_id } = useParams(); // Obtiene el thread_id de los parámetros de la URL
+    const { thread_id } = useParams(); 
     const [thread, setThread] = useState(null);
+    const [comments, setComments] = useState([]);
     const [error, setError] = useState(null);
+    const [orderBy, setOrderBy] = useState('likes'); // Estado para la opción de ordenación, por defecto 'likes'
+    const [body, setBody] = useState('');
+
 
     const fetchThread = useCallback(async () => {
         setError(null);
@@ -31,9 +35,57 @@ const SpecificThread = () => {
         }
     }, [thread_id]);
 
+    const fetchComments = useCallback(async (order) => {
+        setError(null);
+        try {
+            const data = await getComments(thread_id, order, user.isAuthenticated);
+            const commentsWithTime = data.map(comment => ({
+                ...comment,
+                time_since_creation: timeElapsed(comment.created_at),
+                time_since_update: timeElapsed(comment.updated_at),
+                is_edited: isEdited(comment.created_at, comment.updated_at),
+                replies: comment.replies ? comment.replies.map(reply => ({
+                    ...reply,
+                    time_since_creation: timeElapsed(reply.created_at),
+                    time_since_update: timeElapsed(reply.updated_at),
+                    is_edited: isEdited(reply.created_at, reply.updated_at),
+                })) : [],
+            }));
+            setComments(commentsWithTime);
+        } catch (error) {
+            setError('Failed to fetch comments');
+        }
+    }, [thread_id]);
+
     useEffect(() => {
         fetchThread();
-    }, [fetchThread]);
+        fetchComments(orderBy);
+    }, [fetchThread, fetchComments, orderBy]);
+
+    const handleOrderChange = (order) => {
+        setOrderBy(order);
+        fetchComments(order);
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const commentData = { body, thread: thread_id };
+        try {
+            const newComment = await createComment(commentData);
+            console.log('Comment created successfully:', newComment);
+            setBody('');
+            const updatedComments = await getComments(thread_id, orderBy, user.isAuthenticated);
+            setComments(updatedComments);
+            fetchComments(orderBy);
+        } catch (error) {
+            console.error('Error creating comment:', error);
+        }
+    };
+
+
+    const handleDelete = () => {
+        window.location.href = '/threads'; // Redirigir a la lista de threads después de eliminar
+    };
 
     if (error) {
         return <div>{error}</div>;
@@ -44,13 +96,122 @@ const SpecificThread = () => {
     }
 
     return (
-        <div className="theme--dark">
-            <main id="main" className="view-compact">
+        <body className="theme--dark">
+            <main>
                 <div id="content">
-                    <Thread thread={thread} user={user} reloadThreads={fetchThread} showBody={true} />
+                    <Thread thread={thread} user={user} reloadThreads={fetchThread} showBody={true} onDelete={handleDelete} />
+                </div>
+
+                <div id="comment-add" className="section">
+                    <form action={`/create_comment/${thread.id}`} onSubmit={handleSubmit} name="entry_comment" method="post" className="entry-create">
+                        <label htmlFor="comment_body">Comment:</label>
+                        <textarea id="comment_body" name="body" required value={body} onChange={(e) => setBody(e.target.value)}
+                        style={{ overflow: 'hidden', height: '70px' }}>
+
+                        </textarea>
+                        <div className="row actions">
+                            <ul>
+                                <li>
+                                    <button type="submit" id="entry_comment_submit" name="entry_comment[submit]" className="btn btn__primary">Add comment</button>
+                                </li>
+                            </ul>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="content">
+                    {comments && comments.length > 0 ? (
+                        <section id="comments" className="comments entry-comments comments-tree" data-controller="" data-action="">
+                            <aside className="options options--top" id="options">
+                                <menu className="options__main no-scroll">
+                                    <li>
+                                        <a href="#" className={orderBy === 'likes' ? 'active' : ''} onClick={() => handleOrderChange('likes')} >top</a>
+                                    </li>
+                                    <li>
+                                        <a href="#" className={orderBy === 'newest' ? 'active' : ''} onClick={() => handleOrderChange('newest')}>newest</a>
+                                    </li>
+                                    <li>
+                                        <a href="#" className={orderBy === 'oldest' ? 'active' : ''} onClick={() => handleOrderChange('oldest')}>oldest</a>
+                                    </li>
+                                </menu>
+                            </aside>
+                            {comments.map(comment => (
+                                <React.Fragment key={comment.id}>
+                                    <blockquote className="section comment entry-comment subject comment-level--1" id={`entry-comment-${comment.id}`} data-controller="comment subject mentions" data-subject-parent-value="" data-action="">
+                                        <header>
+                                            <a href={`/profile/${comment.author.id}/`} className="user-inline" title={comment.author.username}>
+                                                {comment.author.username}
+                                            </a>
+                                            , <time className="timeago" title={comment.created_at} dateTime={comment.created_at}>{comment.time_since_creation}</time>
+                                            {comment.is_edited && comment.created_at !== comment.updated_at && (
+                                                <span className="edited">
+                                                    (edited <time className="timeago" title={comment.updated_at}>{comment.time_since_update} ago</time>)
+                                                </span>
+                                            )}
+                                        </header>
+
+                                        <figure>
+                                            <a href={`/u/${comment.author.username}`}>
+                                                <div className="no-avatar"></div>
+                                            </a>
+                                        </figure>
+
+                                        <div className="content">
+                                            <p>{comment.body}</p>
+                                        </div>
+
+                                        <aside className="vote">
+                                            <form method="post" action={`/reply_vote/${comment.id}`} className="vote__up">
+                                                <button type="submit" title="Favorite" aria-label="Favorite">
+                                                    <span>{comment.num_likes}</span>
+                                                    <span role="img" aria-label="thumb-up">&#128077;</span>
+                                                </button>
+                                            </form>
+
+                                            <form method="post" action={`/reply_vote/${comment.id}`} className="vote__down">
+                                                <button type="submit" title="Reduce" aria-label="Reduce">
+                                                    <span>{comment.num_dislikes}</span>
+                                                    <span role="img" aria-label="thumb-down">&#128078;</span>
+                                                </button>
+                                            </form>
+                                        </aside>
+
+                                        <footer>
+                                            <menu>
+                                                <li>
+                                                    <a href={`/reply_comment/${comment.thread_id}/${comment.parent_comment || comment.id}/${comment.id}`} className="edit-comment-link">reply</a>
+                                                </li>
+                                                {comment.author.username === user.username && (
+                                                    <>
+                                                        <li>
+                                                            <a href={`/reply_edit/${comment.thread_id}/${comment.id}`} className="edit-comment-link">Edit</a>
+                                                        </li>
+                                                        <li>
+                                                            <form action={`/reply_delete/${comment.id}/${comment.thread_id}`} method="post">
+                                                                <button type="submit">Delete</button>
+                                                            </form>
+                                                        </li>
+                                                    </>
+                                                )}
+                                            </menu>
+                                        </footer>
+                                    </blockquote>
+                                    {comment.replies && comment.replies.length > 0 && comment.replies.map(reply => (
+                                        <CommentBlock key={reply.id} comment={reply} level={reply.reply_level + 1} user={user} parentReply={reply.parent_reply_id} profileView={false} />
+                                    ))}
+                                </React.Fragment>
+                            ))}
+                        </section>
+                    ) : (
+                        <div className="overview subjects comments-tree comments show-post-avatar">
+                            <aside className="section section--muted">
+                                <p>No comments</p>
+                            </aside>
+                        </div>
+                    )}
                 </div>
             </main>
-        </div>
+        </body>
     );
 };
 
