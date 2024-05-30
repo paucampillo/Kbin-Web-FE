@@ -514,4 +514,26 @@ export const updateProfile = async (userId, profileData) => {
   }
 };
 
+export const search = async (query, orderBy = 'newest') => {
+  try {
+    const response = await fetch(`${BASE_URL}/search/?query=${query}&order_by=${orderBy}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${API_KEY}`, // Replace YOUR_API_KEY with actual API key
+      },
+    });
+    if (!response.ok) {
+      throw new Error('Failed to search');
+    }
+    const data = await response.json();
+    return data;
+  }
+  catch (error) {
+    console.error('Error searching:', error);
+    throw error;
+  }
+}
+
+
 // Function to update
