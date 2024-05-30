@@ -6,7 +6,7 @@ import { getThread, getComments, createComment, deleteComment, likeComment, getC
 
 const user = {
     id: 1,
-    username: 'haonan',
+    username: 'pau',
     isAuthenticated: true,
 };
 
@@ -49,15 +49,6 @@ const SpecificThread = () => {
                     time_since_update: timeElapsed(reply.updated_at),
                     is_edited: isEdited(reply.created_at, reply.updated_at),
                 })) : [],
-            }));
-            const parentComments = data.filter(comment => !comment.parent_comment);
-
-            // Map and process parent comments with time, edits, etc.
-            const parentCommentsWithTime = parentComments.map(comment => ({
-                ...comment,
-                time_since_creation: timeElapsed(comment.created_at),
-                time_since_update: timeElapsed(comment.updated_at),
-                is_edited: isEdited(comment.created_at, comment.updated_at),
             }));
 
             setComments(commentsWithTime);
@@ -231,7 +222,7 @@ const SpecificThread = () => {
                                         </footer>
                                     </blockquote>
                                     {comment.replies && comment.replies.length > 0 && comment.replies.map(reply => (
-                                        <CommentBlock key={reply.id} comment={reply} level={reply.reply_level + 1} user={user} parentReply={reply.parent_reply_id} profileView={false} fetchComments={fetchComments}/>
+                                        <CommentBlock key={reply.id} comment={reply} level={reply.reply_level + 1} user={user} parentReply={reply.parent_reply_id} profileView={false} fetchComments={fetchComments} orderBy={orderBy}/>
                                     ))}
                                 </React.Fragment>
                             ))}

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { deleteReply, getComments, getReply, likeReply, unlikeReply, dislikeReply, undislikeReply } from '../../services/api';
+import { deleteReply, getComments, likeReply, unlikeReply, dislikeReply, undislikeReply } from '../../services/api';
 
-const CommentBlock = ({ comment, level, user, fetchComments }) => {
+const CommentBlock = ({ comment, level, user, fetchComments, orderBy }) => {
 
     const [replies, setReplies] = useState(comment.replies || []);
     const borderStyle = level > 10 ? { borderLeft: '1px solid #7e8f99', marginLeft: `calc(${level} * 1rem)` } : {};
@@ -33,7 +33,7 @@ const CommentBlock = ({ comment, level, user, fetchComments }) => {
                 await likeReply(reply_id);
                 setReplies(replies.map(reply => reply.id === reply_id ? { ...reply, user_has_liked: true } : reply));
             }
-            fetchComments();
+            fetchComments(orderBy);
         } catch (error) {
             console.error('Error liking reply:', reply_id, error);
         }
@@ -48,7 +48,7 @@ const CommentBlock = ({ comment, level, user, fetchComments }) => {
                 await dislikeReply(reply_id);
                 setReplies(replies.map(reply => reply.id === reply_id ? { ...reply, user_has_disliked: true } : reply));
             }
-            fetchComments();
+            fetchComments(orderBy);
         } catch (error) {
             console.error('Error disliking reply:', reply_id, error);
         }
@@ -123,6 +123,7 @@ const CommentBlock = ({ comment, level, user, fetchComments }) => {
                         parentCommentId={comment.id} 
                         user={user}
                         fetchComments={fetchComments}
+                        orderBy={orderBy}
                     />
                 ))
             }
