@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import CommentList from './components/Comments/CommentList';
 import ReplyComment from './components/Threads/ReplyComment';
+import EditCommentForm from './components/Threads/EditCommentForm';
 import MagazineList from './components/Magazines/MagazineList';
 import ThreadList from './components/Threads/ThreadList';
 import SearchList from './components/Search/SearchList';
@@ -33,8 +34,11 @@ function App() {
             <Route path="/thread/:thread_id/edit" component={ThreadLinkEdit} />
             <Route path="/thread/:thread_id" component={SpecificThread} />
             <Route path="/links/new" component={LinkCreate} />
+
             <Route path="/comments" component={CommentList} />
             <Route path="/reply_comment/:thread_id/:parent_comment_id/:parent_reply_id?" component={ReplyComment} />
+            <Route path="/reply_edit/:thread_id/:comment_id" component={EditCommentForm} />
+
             <Route path="/magazines/new" component={MagazineForm} />
             <Route path="/magazines/:magazineId" component={MagazinePage} /> 
             <Route path="/magazines" component={MagazineList} />
