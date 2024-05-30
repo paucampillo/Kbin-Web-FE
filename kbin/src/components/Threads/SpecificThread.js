@@ -83,6 +83,8 @@ const SpecificThread = () => {
             const newComment = await createComment(commentData);
             console.log('Comment created successfully:', newComment);
             setBody('');
+            const updatedComments = await getComments(thread_id, orderBy, user.isAuthenticated);
+            setComments(updatedComments);
             fetchComments(orderBy);
         } catch (error) {
             console.error('Error creating comment:', error);
@@ -182,12 +184,9 @@ const SpecificThread = () => {
                                         <header>
                                             <a href={`/profile/${comment.author.id}/`} className="user-inline" title={comment.author.username}>
                                                 {comment.author.username}
-                                            </a>
-                                            , <time className="timeago" title={comment.created_at} dateTime={comment.created_at}>{comment.time_since_creation}</time>
+                                            </a>, <time className="timeago" title={comment.created_at} dateTime={comment.created_at}>{comment.time_since_creation}</time>
                                             {comment.is_edited && comment.created_at !== comment.updated_at && (
-                                                <span className="edited">
-                                                    (edited <time className="timeago" title={comment.updated_at}>{comment.time_since_update} ago</time>)
-                                                </span>
+                                                <span className="edited">(edited <time className="timeago" title={comment.updated_at}>{comment.time_since_update} ago</time>)</span>
                                             )}
                                         </header>
 

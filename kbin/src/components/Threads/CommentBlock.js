@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { createComment, deleteReply, getComments, getReply, likeReply, unlikeReply, dislikeReply, undislikeReply } from '../../services/api';
+import { deleteReply, getComments, getReply, likeReply, unlikeReply, dislikeReply, undislikeReply } from '../../services/api';
 
 const CommentBlock = ({ comment, level, user, fetchComments }) => {
-    const [replyBody, setReplyBody] = useState('');
+
+    const [replyBody, setReplyBody] = useState(''); // Define replyBody y setReplyBody como estados
     const [replies, setReplies] = useState(comment.replies || []);
     const borderStyle = level > 10 ? { borderLeft: '1px solid #7e8f99', marginLeft: `calc(${level} * 1rem)` } : {};
 
@@ -10,11 +11,12 @@ const CommentBlock = ({ comment, level, user, fetchComments }) => {
         setReplies(comment.replies || []);
     }, [comment.replies]);
 
+
     const handleReplySubmit = async (e) => {
         e.preventDefault();
         const replyData = {
             body: replyBody,
-            thread_id: comment.thread_id,
+            thread_id: comment.thread_id, 
             parent_comment: comment.id || null,
             parent_reply: null,
         };
@@ -22,9 +24,8 @@ const CommentBlock = ({ comment, level, user, fetchComments }) => {
             const response = await createComment(replyData);
             console.log('Reply created successfully:', response);
             setReplyBody('');
-            const updatedComments = await getComments(comment.thread_id, 'likes', user.isAuthenticated);
-            const updatedComment = updatedComments.find(c => c.id === comment.id);
-            setReplies(updatedComment ? updatedComment.replies : []);
+            const updatedComments = await getComments(comment.thread_id, 'likes', user.isAuthenticated); // Corrige el orden en el que se pasan los parámetros
+            setReplies(updatedComments);
         } catch (error) {
             console.error('Error creating reply:', error);
         }
