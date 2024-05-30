@@ -6,7 +6,7 @@ import { getThread, getComments, createComment, deleteComment, likeComment, getC
 
 const user = {
     id: 1,
-    username: 'pau',
+    username: 'haonan',
     isAuthenticated: true,
 };
 
