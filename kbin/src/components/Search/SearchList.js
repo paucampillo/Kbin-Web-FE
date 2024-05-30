@@ -1,9 +1,7 @@
-import React, { useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import { search } from '../../services/api';
 import Thread from '../Threads/Thread';
 import Menu from '../Threads/Menu';
-import Filters from '../Threads/Filters';
 
 // Stub de momento
 const user = {
@@ -13,11 +11,29 @@ const user = {
 
 const SearchList = () => {
   const [query, setQuery] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
+  const [searchResults, setSearchResults] = useState([]); // Estado para almacenar los threads obtenidos
   const [order, setOrder] = useState('points'); // points, created_at, num_comments
-  const [filter, setFilter] = useState('all'); // all, links, threads
   const [hasSearched, setHasSearched] = useState(false); // Estado para rastrear si se ha realizado una búsqueda
-  const history = useHistory();
+
+  useEffect(() => {
+    if (hasSearched) {
+      const fetchData = async () => {
+        try {
+          const results = await search(query, order);
+          const resultsWithTime = results.map(thread => ({
+            ...thread,
+            time_since_creation: timeElapsed(thread.created_at),
+            time_since_update: timeElapsed(thread.updated_at),
+            is_edited: isEdited(thread.created_at, thread.updated_at),
+          }));
+          setSearchResults(resultsWithTime);
+        } catch (error) {
+          console.error('Error searching:', error);
+        }
+      };
+      fetchData();
+    }
+  }, [query, order, hasSearched]);
 
   const handleInputChange = (event) => {
     setQuery(event.target.value);
@@ -25,60 +41,35 @@ const SearchList = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    
-    try {
-      const results = await search(query);
-      const resultsWithTime = results.map(thread => ({
-        ...thread,
-        time_since_creation: timeElapsed(thread.created_at),
-        time_since_update: timeElapsed(thread.updated_at),
-        is_edited: isEdited(thread.created_at, thread.updated_at),
-      }));
-
-      setSearchResults(resultsWithTime);
-      setHasSearched(true); // Indicar que se ha realizado una búsqueda
-
-      history.push({
-        pathname: '/search/results',
-        search: `?q=${query}`,
-        state: { threads: resultsWithTime, query },
-      });
-
-    } catch (error) {
-      console.error('Error searching:', error);
-    }
+    setHasSearched(true); // Indicar que se ha realizado una búsqueda
   };
 
-  // Function to filter and sort the threads based on filter and order states
-  const getFilteredAndSortedResults = () => {
-    let filteredThreads = searchResults;
-
-    if (filter !== 'all') {
-      filteredThreads = filteredThreads.filter(thread => {
-        if (filter === 'links') return thread.url;
-        if (filter === 'threads') return !thread.url;
-        return true;
-      });
-    }
-
-    filteredThreads = filteredThreads.sort((a, b) => {
-      if (order === 'points') return b.num_points - a.num_points;
-      if (order === 'created_at') return new Date(b.created_at) - new Date(a.created_at);
-      if (order === 'num_comments') return b.num_comments - a.num_comments;
-      return 0;
-    });
-
-    return filteredThreads;
+  const handleOrderChange = (value) => {
+    setOrder(value);
   };
 
   const isActive = (value, type) => {
     if (type === 'order' && order === value) {
       return 'active';
     }
-    if (type === 'filter' && filter === value) {
-      return 'active';
-    }
     return '';
+  };
+
+  const reloadThreads = async () => {
+    if (hasSearched) {
+      try {
+        const results = await search(query, order);
+        const resultsWithTime = results.map(thread => ({
+          ...thread,
+          time_since_creation: timeElapsed(thread.created_at),
+          time_since_update: timeElapsed(thread.updated_at),
+          is_edited: isEdited(thread.created_at, thread.updated_at),
+        }));
+        setSearchResults(resultsWithTime);
+      } catch (error) {
+        console.error('Error reloading threads:', error);
+      }
+    }
   };
 
   return (
@@ -111,8 +102,7 @@ const SearchList = () => {
       {/* Renderiza la barra de filtros solo si se ha realizado una búsqueda */}
       {hasSearched && (
         <aside className="options options--top" id="options">
-          <Menu setOrder={setOrder} isActive={isActive} />
-          <Filters setFilter={setFilter} isActive={isActive} />
+          <Menu setOrder={handleOrderChange} isActive={isActive} />
         </aside>
       )}
 
@@ -124,8 +114,8 @@ const SearchList = () => {
             </aside>
           </div>
         ) : (
-          getFilteredAndSortedResults().map((thread) => (
-            <Thread key={thread.id} thread={thread} user={user} />
+          searchResults.map((thread) => (
+            <Thread key={thread.id} thread={thread} user={user} reloadThreads={reloadThreads} />
           ))
         )}
       </div>
