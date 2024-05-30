@@ -69,7 +69,7 @@ export const getMagazine = async (magazineId) => {
     const headers = {
       'Content-Type': 'application/json',
     };
-    
+
     // Verifica si hay un usuario autenticado
     const userAuthenticated = API_KEY !== '';
 
@@ -102,7 +102,7 @@ export const getMagazineThreads = async (magazineId, filter = 'all', orderBy = '
     const headers = {
       'Content-Type': 'application/json',
     };
-    
+
     // Incluir el encabezado Authorization si API_KEY está presente
     const userAuthenticated = API_KEY !== '';
     if (userAuthenticated) {
@@ -128,12 +128,12 @@ export const getMagazineThreads = async (magazineId, filter = 'all', orderBy = '
 };
 
 // Function to fetch magazines
-export const getMagazines = async (orderBy = 'subscriptions_count', token ) => {
+export const getMagazines = async (orderBy = 'subscriptions_count', token) => {
   try {
     const headers = {
       'Content-Type': 'application/json',
     };
-    token = API_KEY !== ''; 
+    token = API_KEY !== '';
     if (token) {
       headers['Authorization'] = `Token ${API_KEY}`;
     }
@@ -317,6 +317,28 @@ export const updateThreadLink = async (threadId, threadData) => {
 
     const data = await response.json();
     return data;
+  } catch (error) {
+    console.error('Error creating thread:', error);
+    throw error;
+  }
+};
+
+
+// Function to delete a thread
+export const deleteThread = async (threadId) => {
+  try {
+    const response = await fetch(`${BASE_URL}/threads/${threadId}/`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${API_KEY}`,
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to create thread');
+    }
+
   } catch (error) {
     console.error('Error creating thread:', error);
     throw error;
