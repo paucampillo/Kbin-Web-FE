@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import Thread from './Thread';
 import CommentBlock from './CommentBlock';
-import { getThread, getComments } from '../../services/api';
+import { getThread, getComments, createComment } from '../../services/api';
 
 const user = {
     id: 1,
@@ -16,6 +16,8 @@ const SpecificThread = () => {
     const [comments, setComments] = useState([]);
     const [error, setError] = useState(null);
     const [orderBy, setOrderBy] = useState('likes'); // Estado para la opción de ordenación, por defecto 'likes'
+    const [body, setBody] = useState('');
+
 
     const fetchThread = useCallback(async () => {
         setError(null);
@@ -65,6 +67,22 @@ const SpecificThread = () => {
         fetchComments(order);
     };
 
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const commentData = { body, thread: thread_id };
+        try {
+            const newComment = await createComment(commentData);
+            console.log('Comment created successfully:', newComment);
+            setBody('');
+            const updatedComments = await getComments(thread_id, orderBy, user.isAuthenticated);
+            setComments(updatedComments);
+            fetchComments(orderBy);
+        } catch (error) {
+            console.error('Error creating comment:', error);
+        }
+    };
+
+
     const handleDelete = () => {
         window.location.href = '/threads'; // Redirigir a la lista de threads después de eliminar
     };
@@ -85,9 +103,12 @@ const SpecificThread = () => {
                 </div>
 
                 <div id="comment-add" className="section">
-                    <form action={`/create_comment/${thread.id}`} name="entry_comment" method="post" className="entry-create">
+                    <form action={`/create_comment/${thread.id}`} onSubmit={handleSubmit} name="entry_comment" method="post" className="entry-create">
                         <label htmlFor="comment_body">Comment:</label>
-                        <textarea id="comment_body" name="body"></textarea>
+                        <textarea id="comment_body" name="body" required value={body} onChange={(e) => setBody(e.target.value)}
+                        style={{ overflow: 'hidden', height: '70px' }}>
+
+                        </textarea>
                         <div className="row actions">
                             <ul>
                                 <li>
@@ -122,7 +143,7 @@ const SpecificThread = () => {
                                                 {comment.author.username}
                                             </a>
                                             , <time className="timeago" title={comment.created_at} dateTime={comment.created_at}>{comment.time_since_creation}</time>
-                                            {comment.is_edited && (
+                                            {comment.is_edited && comment.created_at !== comment.updated_at && (
                                                 <span className="edited">
                                                     (edited <time className="timeago" title={comment.updated_at}>{comment.time_since_update} ago</time>)
                                                 </span>
