@@ -1,30 +1,6 @@
-import React, { useState } from 'react';
-import { createComment, getComments } from '../../services/api'; // Asegúrate de importar getComments desde el lugar correcto
+import React from 'react';
 
 const CommentBlock = ({ comment, level, user }) => {
-
-    const [replyBody, setReplyBody] = useState(''); // Define replyBody y setReplyBody como estados
-
-    const handleReplySubmit = async (e) => {
-        e.preventDefault();
-        const replyData = {
-            body: replyBody,
-            thread_id: comment.thread_id, 
-            parent_comment: comment.id || null,
-            parent_reply: null,
-        };
-        try {
-            const response = await createComment(replyData);
-            console.log('Reply created successfully:', response);
-            setReplyBody('');
-            const updatedComments = await getComments(comment.thread_id, 'likes', user.isAuthenticated); // Corrige el orden en el que se pasan los parámetros
-            setReplies(updatedComments);
-        } catch (error) {
-            console.error('Error creating reply:', error);
-        }
-    };
-
-    const [replies, setReplies] = useState([]); // Define replies como un estado
 
     const borderStyle = level > 10 ? { borderLeft: '1px solid #7e8f99', marginLeft: `calc(${level} * 1rem)` } : {};
 
@@ -78,7 +54,7 @@ const CommentBlock = ({ comment, level, user }) => {
                     {comment.author.username === user.username && (
                         <>
                             <li>
-                                <a href={`/reply_edit/${comment.thread_id}/${comment.id}`} className="edit-comment-link">
+                                <a href={`/reply_edit/${comment.thread_id}/${comment.parent_comment || comment.id}/${comment.id}`} className="edit-comment-link">
                                     Edit
                                 </a>
                             </li>
@@ -97,15 +73,14 @@ const CommentBlock = ({ comment, level, user }) => {
             {comment.replies && comment.replies.length > 0 &&
                 comment.replies.map(reply => 
                 (reply.author === reply.user) && 
-            <CommentBlock 
-            key={reply.id} 
-            comment={reply} 
-            level={level + 1} 
-            parentCommentId={comment.id} 
-            user={user}
-            />
-        )
-        }
+                <CommentBlock 
+                    key={reply.id} 
+                    comment={reply} 
+                    level={level + 1} 
+                    parentCommentId={comment.id} 
+                    user={user}
+                />
+            )}
         </blockquote>
     );
 };

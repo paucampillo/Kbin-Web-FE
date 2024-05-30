@@ -24,6 +24,65 @@ export const getComments = async (threadId, orderBy = 'newest') => {
   }
 };
 
+export const getComment = async (commentId) => {
+  try {
+    const response = await fetch(`${BASE_URL}/comments/${commentId}/`, {
+      headers: {
+        'Authorization': `Token ${API_KEY}`,
+      },
+    });
+    if (!response.ok) {
+      throw new Error('Failed to fetch comment');
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching comment:', error);
+    throw error;
+  }
+};
+
+export const getReply = async (replyId) => {
+  try {
+    const response = await fetch(`${BASE_URL}/replies/${replyId}/`, {
+      headers: {
+        'Authorization': `Token ${API_KEY}`,
+      },
+    });
+    if (!response.ok) {
+      throw new Error('Failed to fetch reply');
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching reply:', error);
+    throw error;
+  }
+};
+
+export const updateReply = async (replyId, replyData) => {
+  try {
+    const response = await fetch(`${BASE_URL}/replies/${replyId}/`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${API_KEY}`,
+      },
+      body: JSON.stringify(replyData),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to update reply');
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error updating reply:', error);
+    throw error;
+  }
+};
+
+
+
 // Function to create a comment for a thread
 export const createComment = async (commentData) => {
   try {
@@ -45,6 +104,29 @@ export const createComment = async (commentData) => {
     throw error;
   }
 };
+
+export const updateComment = async (commentId, commentData) => {
+  try {
+    const response = await fetch(`${BASE_URL}/comments/${commentId}/`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${API_KEY}`, // Replace YOUR_API_KEY with actual API key
+      },
+      body: JSON.stringify(commentData),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to update comment');
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error updating comment:', error);
+    throw error;
+  }
+};
+
+
 
 export const voteComment = async (commentId, voteType) => {
   try {

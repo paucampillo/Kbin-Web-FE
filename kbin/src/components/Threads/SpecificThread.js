@@ -6,7 +6,7 @@ import { getThread, getComments, createComment } from '../../services/api';
 
 const user = {
     id: 1,
-    username: 'example_user',
+    username: 'pau',
     isAuthenticated: true,
 };
 
@@ -179,16 +179,22 @@ const SpecificThread = () => {
                                         <footer>
                                             <menu>
                                                 <li>
-                                                    <a href={`/reply_comment/${comment.thread_id}/${comment.parent_comment || comment.id}/${comment.id}`} className="edit-comment-link">reply</a>
+                                                    <a href={`/reply_comment/${comment.thread_id}/${comment.parent_comment || comment.id}/${comment.id}`} className="edit-comment-link">
+                                                        reply
+                                                    </a>
                                                 </li>
                                                 {comment.author.username === user.username && (
                                                     <>
                                                         <li>
-                                                            <a href={`/reply_edit/${comment.thread_id}/${comment.id}`} className="edit-comment-link">Edit</a>
+                                                            <a href={`/reply_edit/${comment.thread_id}/${comment.id}`} className="edit-comment-link">
+                                                                Edit
+                                                            </a>
                                                         </li>
                                                         <li>
                                                             <form action={`/reply_delete/${comment.id}/${comment.thread_id}`} method="post">
-                                                                <button type="submit">Delete</button>
+                                                                <button type="submit">
+                                                                    Delete
+                                                                </button>
                                                             </form>
                                                         </li>
                                                     </>
