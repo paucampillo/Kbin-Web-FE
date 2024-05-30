@@ -6,7 +6,7 @@ import { getThread, getComments, createComment, deleteComment, deleteReply } fro
 
 const user = {
     id: 1,
-    username: 'pau',
+    username: 'haonan',
     isAuthenticated: true,
 };
 

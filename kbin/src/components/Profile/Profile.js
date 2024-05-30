@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
-import { getUserInfo, getUserThreads, getUserBoosts, getUserComments } from '../../services/api'; // Adjust the import according to your file structure
+import { getUserInfo, getUserThreads, getUserBoosts, getUserComments, deleteComment } from '../../services/api'; // Ajusta la importación según tu estructura de archivos
 import UserHeader from './UserHeader';
 import OptionsMenu from './OptionsMenu';
 import Menu from '../Threads/Menu';
@@ -10,7 +10,7 @@ import CommentBlock from '../Threads/CommentBlock';
 
 const user = {
   id: 1,
-  username: 'example_user',
+  username: 'haonan',
   isAuthenticated: true,
 };
 
@@ -22,8 +22,7 @@ const UserProfile = () => {
   const [boosts, setBoosts] = useState([]);
   const [commentsCount, setCommentsCount] = useState(0); // Estado para almacenar el conteo total de comentarios y respuestas
 
-  //const { thread_id } = useParams(); 
-  const { userId } = useParams(); // Assuming you're using a route parameter for userId
+  const { userId } = useParams(); // Asumiendo que estás usando un parámetro de ruta para userId
   const [order, setOrder] = useState('points'); // points, created_at, num_comments
   const [filter, setFilter] = useState('all');  // all, links, threads
   const [error, setError] = useState(null); // Estado para manejar errores
@@ -60,7 +59,6 @@ const UserProfile = () => {
         is_edited: isEdited(thread.created_at, thread.updated_at),
       }));
 
-
       setThreads(threadsWithTime);
       setBoosts(profileBoosts);
       setComments(profileComments);
@@ -68,10 +66,20 @@ const UserProfile = () => {
       setError('Failed to fetch threads');
     }
   }, [filter, order, userId]);
-  
+
   const handleOrderChange = (order) => {
     setOrderBy(order);
     fetchComments(order);
+  };
+
+  const handleDeleteComment = async (comment_id) => {
+    try {
+      await deleteComment(comment_id);
+      console.log('Comment deleted successfully');
+      fetchComments(orderBy);
+    } catch (error) {
+      console.error('Error deleting comment:', error);
+    }
   };
 
   const fetchComments = useCallback(async (order) => {
@@ -92,12 +100,12 @@ const UserProfile = () => {
         })) : [],
       }));
       setComments(commentsWithTime);
+
       // Calcular el conteo total de comentarios y respuestas
       const totalCommentsCount = data.reduce((sum, comment) => {
         return sum + 1 + (comment.replies ? comment.replies.length : 0);
       }, 0);
       setCommentsCount(totalCommentsCount);
-
     } catch (error) {
       setError('Failed to fetch comments');
     }
@@ -106,7 +114,7 @@ const UserProfile = () => {
   useEffect(() => {
     fetchThreads();
     fetchComments(orderBy);
-  }, [fetchThreads,fetchComments,orderBy]);
+  }, [fetchThreads, fetchComments, orderBy]);
 
   if (error) {
     return <div>{error}</div>;
@@ -171,11 +179,10 @@ const UserProfile = () => {
                                 <a href={`/profile/${comment.author.id}`} className="user-inline" title={comment.author.username}>
                                   {comment.author.username}
                                 </a>
-
                                 , <time className="timeago" title={comment.created_at}>{" "}{comment.time_since_creation}</time>
                                 {comment.is_edited && comment.created_at !== comment.updated_at && (
                                   <span className="edited">
-                                    (edited <time className="timeago" title={comment.updated_at}>{comment.time_since_update} ago to</time>)
+                                    (edited <time className="timeago" title={comment.updated_at}>{comment.time_since_update} ago</time>)
                                   </span>
                                 )}
                                 {comment.thread_id ? (
@@ -223,9 +230,7 @@ const UserProfile = () => {
                                         <a href={`/reply_edit/${comment.thread_id}/${comment.id}`} className="edit-comment-link">Edit</a>
                                       </li>
                                       <li>
-                                        <form action={`/reply_delete/${comment.id}/${comment.thread_id}`} method="post">
-                                          <button type="submit">Delete</button>
-                                        </form>
+                                        <button onClick={() => handleDeleteComment(comment.id)}>Delete</button>
                                       </li>
                                     </>
                                   )}
@@ -233,10 +238,10 @@ const UserProfile = () => {
                               </footer>
                             </blockquote>
                             {comment.replies && comment.replies.length > 0 && comment.replies.map(reply => (
-                              <CommentBlock key={reply.id} comment={reply} level={reply.reply_level + 1} user={user} parentReply={reply.parent_reply_id} profileView={false} />
+                                        <CommentBlock key={reply.id} comment={reply} level={reply.reply_level + 1} user={user} parentReply={reply.parent_reply_id} profileView={false} fetchComments={fetchComments}/>
+                                    ))}
+                                </React.Fragment>
                             ))}
-                          </React.Fragment>
-                        ))}
                       </section>
                     ) : (
                       <div className="overview subjects comments-tree comments show-post-avatar">
