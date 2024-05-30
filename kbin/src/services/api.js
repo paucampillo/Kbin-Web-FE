@@ -491,6 +491,37 @@ export const dislikeComment = async (commentId) => {
   }
 };
 
+export const unlikeComment = async (commentId) => {
+  try {
+    const response = await fetch(`${BASE_URL}/comments/${commentId}/likes/`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${API_KEY}`,
+      },
+    });
+  } catch (error) {
+    console.error('Error unliking comment:', error);
+    throw error;
+  }
+};
+
+export const undislikeComment = async (commentId) => {
+  try {
+    const response = await fetch(`${BASE_URL}/comments/${commentId}/dislikes/`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${API_KEY}`,
+      },
+    });
+  } catch (error) {
+    console.error('Error undisliking comment:', error);
+    throw error;
+  }
+};
+
+
 export const likeReply = async (replyId) => {
   try {
     const response = await fetch(`${BASE_URL}/replies/${replyId}/likes/`, {
@@ -517,6 +548,36 @@ export const dislikeReply = async (replyId) => {
     });
   } catch (error) {
     console.error('Error disliking reply: ',error);
+    throw error;
+  }
+};
+
+export const unlikeReply = async (replyId) => {
+  try {
+    const response = await fetch(`${BASE_URL}/replies/${replyId}/likes/`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${API_KEY}`,
+      },
+    });
+  } catch (error) {
+    console.error('Error unliking reply:', error);
+    throw error;
+  }
+};
+
+export const undislikeReply = async (replyId) => {
+  try {
+    const response = await fetch(`${BASE_URL}/replies/${replyId}/dislikes/`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${API_KEY}`,
+      },
+    });
+  } catch (error) {
+    console.error('Error undisliking reply:', error);
     throw error;
   }
 };

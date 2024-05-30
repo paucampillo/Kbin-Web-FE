@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import Thread from './Thread';
 import CommentBlock from './CommentBlock';
-import { getThread, getComments, createComment, deleteComment, deleteReply } from '../../services/api';
+import { getThread, getComments, createComment, deleteComment, deleteReply, likeComment, getComment, unlikeComment, undislikeComment, dislikeComment } from '../../services/api';
 
 const user = {
     id: 1,
@@ -50,7 +50,17 @@ const SpecificThread = () => {
                     is_edited: isEdited(reply.created_at, reply.updated_at),
                 })) : [],
             }));
-            setComments(commentsWithTime);
+            const parentComments = data.filter(comment => !comment.parent_comment);
+
+            // Map and process parent comments with time, edits, etc.
+            const parentCommentsWithTime = parentComments.map(comment => ({
+                ...comment,
+                time_since_creation: timeElapsed(comment.created_at),
+                time_since_update: timeElapsed(comment.updated_at),
+                is_edited: isEdited(comment.created_at, comment.updated_at),
+            }));
+
+            setComments(parentCommentsWithTime);
         } catch (error) {
             setError('Failed to fetch comments');
         }
@@ -73,8 +83,6 @@ const SpecificThread = () => {
             const newComment = await createComment(commentData);
             console.log('Comment created successfully:', newComment);
             setBody('');
-            const updatedComments = await getComments(thread_id, orderBy, user.isAuthenticated);
-            setComments(updatedComments);
             fetchComments(orderBy);
         } catch (error) {
             console.error('Error creating comment:', error);
@@ -91,7 +99,37 @@ const SpecificThread = () => {
         }
     };
 
+    const handleLikeComment = async (comment_id) => {
+        try {
+            let commentData = await getComment(comment_id);
+            if (commentData.user_has_liked) {
+                await unlikeComment(comment_id);
+                console.log('Comment unliked successfully');
+            } else {
+                await likeComment(comment_id);
+                console.log('Comment liked successfully');
+            }
+            fetchComments(orderBy);
+        } catch (error) {
+            console.error('Error liking comment:', error);
+        }
+    };
 
+    const handleDislikeComment = async (comment_id) => {
+        try {
+            const commentData = await getComment(comment_id);
+            if (commentData.user_has_disliked) {
+                await undislikeComment(comment_id);
+                console.log('Comment undisliked successfully');
+            } else {
+                await dislikeComment(comment_id);
+                console.log('Comment disliked successfully');
+            }
+            fetchComments(orderBy);
+        } catch (error) {
+            console.error('Error disliking comment:', error);
+        }
+    };
 
     if (error) {
         return <div>{error}</div>;
@@ -164,19 +202,15 @@ const SpecificThread = () => {
                                         </div>
 
                                         <aside className="vote">
-                                            <form method="post" action={`/reply_vote/${comment.id}`} className="vote__up">
-                                                <button type="submit" title="Favorite" aria-label="Favorite">
-                                                    <span>{comment.num_likes}</span>
-                                                    <span role="img" aria-label="thumb-up">&#128077;</span>
-                                                </button>
-                                            </form>
+                                            <button className="vote__up" onClick={() => handleLikeComment(comment.id)} title="Favorite" aria-label="Favorite">
+                                                <span style={{ color: comment.user_has_liked ? '#13F30B' : 'inherit' }}>{comment.num_likes}</span>
+                                                <span role="img" aria-label="thumbs up">👍</span>
+                                            </button>
 
-                                            <form method="post" action={`/reply_vote/${comment.id}`} className="vote__down">
-                                                <button type="submit" title="Reduce" aria-label="Reduce">
-                                                    <span>{comment.num_dislikes}</span>
-                                                    <span role="img" aria-label="thumb-down">&#128078;</span>
-                                                </button>
-                                            </form>
+                                            <button className="vote__down" onClick={() => handleDislikeComment(comment.id)} title="Reduce" aria-label="Reduce">
+                                                <span style={{ color: comment.user_has_disliked ? '#F30B0B' : 'inherit' }}>{comment.num_dislikes}</span>
+                                                <span role="img" aria-label="thumbs down">👎</span>
+                                            </button>
                                         </aside>
 
                                         <footer>
