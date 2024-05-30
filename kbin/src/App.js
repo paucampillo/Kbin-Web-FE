@@ -37,7 +37,7 @@ function App() {
 
             <Route path="/comments" component={CommentList} />
             <Route path="/reply_comment/:thread_id/:parent_comment_id/:parent_reply_id?" component={ReplyComment} />
-            <Route path="/reply_edit/:thread_id/:comment_id" component={EditCommentForm} />
+            <Route path="/reply_edit/:thread_id/:comment_id/:reply_id?" component={EditCommentForm} />
 
             <Route path="/magazines/new" component={MagazineForm} />
             <Route path="/magazines/:magazineId" component={MagazinePage} /> 

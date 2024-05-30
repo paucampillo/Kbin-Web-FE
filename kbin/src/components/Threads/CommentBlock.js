@@ -78,7 +78,7 @@ const CommentBlock = ({ comment, level, user }) => {
                     {comment.author.username === user.username && (
                         <>
                             <li>
-                                <a href={`/reply_edit/${comment.thread_id}/${comment.id}`} className="edit-comment-link">
+                                <a href={`/reply_edit/${comment.thread_id}/${comment.parent_comment || comment.id}/${comment.id}`} className="edit-comment-link">
                                     Edit
                                 </a>
                             </li>
@@ -97,15 +97,14 @@ const CommentBlock = ({ comment, level, user }) => {
             {comment.replies && comment.replies.length > 0 &&
                 comment.replies.map(reply => 
                 (reply.author === reply.user) && 
-            <CommentBlock 
-            key={reply.id} 
-            comment={reply} 
-            level={level + 1} 
-            parentCommentId={comment.id} 
-            user={user}
-            />
-        )
-        }
+                <CommentBlock 
+                    key={reply.id} 
+                    comment={reply} 
+                    level={level + 1} 
+                    parentCommentId={comment.id} 
+                    user={user}
+                />
+            )}
         </blockquote>
     );
 };

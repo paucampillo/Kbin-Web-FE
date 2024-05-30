@@ -1,43 +1,50 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { updateComment, getComments } from '../../services/api';
+import { useParams, useHistory } from 'react-router-dom';
+import { updateComment, updateReply, getComment, getReply } from '../../services/api';
 
 const CommentEdit = () => {
-    const { comment_id } = useParams();
+    const { thread_id, comment_id, reply_id } = useParams(); // Añadir reply_id en caso de que se trate de una respuesta
+    const history = useHistory(); // Hook para manejar la navegación
     const [body, setBody] = useState('');
 
     useEffect(() => {
-        const fetchComment = async () => {
+        const fetchData = async () => {
             try {
-                // Lógica para obtener los datos del comentario según comment_id
-                // Ejemplo:
-                // const commentData = await getCommentData(comment_id);
-                // setBody(commentData.body);
-                const commentData = await getComments(comment_id);
-                setBody(commentData.body);
-
+                let data;
+                console.log('comment_id:', comment_id, 'reply_id:', reply_id);
+                if (reply_id) {
+                    // Si hay reply_id, obtener los datos de la respuesta
+                    data = await getReply(reply_id);
+                } else {
+                    // Si no hay reply_id, obtener los datos del comentario
+                    data = await getComment(comment_id);
+                }
+                setBody(data.body);
             } catch (error) {
-                console.error('Error fetching comment data:', error);
+                console.error('Error fetching data:', error);
             }
         };
 
-        fetchComment();
-    }, [comment_id]);
+        fetchData();
+    }, [comment_id, reply_id]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const commentData = { body };
+        const data = { body };
 
         try {
-            // Lógica para enviar los datos del comentario actualizado al servidor
-            // Ejemplo:
-            // const updatedComment = await updateComment(comment_id, commentData);
-            // console.log('Comment updated successfully:', updatedComment);
-            const updatedComment = await updateComment(comment_id, commentData);
-            console.log('Comment updated successfully:', updatedComment);
-
+            if (reply_id) {
+                // Si hay reply_id, actualizar la respuesta
+                const updatedReply = await updateReply(reply_id, data);
+                console.log('Reply updated successfully:', updatedReply);
+            } else {
+                // Si no hay reply_id, actualizar el comentario
+                const updatedComment = await updateComment(comment_id, data);
+                console.log('Comment updated successfully:', updatedComment);
+            }
+            window.location.href = `/thread/${thread_id}`; // Redirigir a la página del thread
         } catch (error) {
-            console.error('Error updating comment:', error);
+            console.error('Error updating data:', error);
         }
     };
 
@@ -52,7 +59,7 @@ const CommentEdit = () => {
                                     <div>
                                         <label htmlFor="body">Body</label>
                                         <textarea
-                                            id="body"
+                                            id="entry_link_body"
                                             name="body"
                                             value={body}
                                             onChange={(e) => setBody(e.target.value)}
@@ -67,11 +74,9 @@ const CommentEdit = () => {
                                                 <div>
                                                     <button
                                                         type="submit"
-                                                        id="entry_link_submit"
-                                                        name="entry_link[submit]"
                                                         className="btn btn__primary"
                                                     >
-                                                        Edit comment
+                                                        {reply_id ? 'Edit reply' : 'Edit comment'}
                                                     </button>
                                                 </div>
                                             </li>
