@@ -1,9 +1,16 @@
-import React, { useState } from 'react';
-import { createComment, getComments } from '../../services/api'; // Asegúrate de importar getComments desde el lugar correcto
+import React, { useEffect, useState } from 'react';
+import { createComment, deleteReply, getComments } from '../../services/api'; // Asegúrate de importar getComments desde el lugar correcto
 
-const CommentBlock = ({ comment, level, user }) => {
+const CommentBlock = ({ comment, level, user, fetchComments }) => {
 
     const [replyBody, setReplyBody] = useState(''); // Define replyBody y setReplyBody como estados
+    const [replies, setReplies] = useState(comment.replies || []);
+    const borderStyle = level > 10 ? { borderLeft: '1px solid #7e8f99', marginLeft: `calc(${level} * 1rem)` } : {};
+
+    useEffect(() => {
+        setReplies(comment.replies || []);
+    }, [comment.replies]);
+
 
     const handleReplySubmit = async (e) => {
         e.preventDefault();
@@ -24,9 +31,19 @@ const CommentBlock = ({ comment, level, user }) => {
         }
     };
 
-    const [replies, setReplies] = useState([]); // Define replies como un estado
+    const handleDeleteReply = async (reply_id) => {
+        try {
+            await deleteReply(reply_id);
+            console.log('Reply deleted successfully');
+            const updatedComments = await getComments(comment.thread_id, 'top', user.isAuthenticated); // Corrige el orden en el que se pasan los parámetros
+            setReplies(updatedComments);
+            await fetchComments();
+        }
+        catch (error) {
+            console.error('Error deleting reply:', error);
+        }
+    };
 
-    const borderStyle = level > 10 ? { borderLeft: '1px solid #7e8f99', marginLeft: `calc(${level} * 1rem)` } : {};
 
     return (
         <blockquote className={`section comment entry-comment subject comment-level--${level} comment-has-children`} id={`entry-comment-${comment.id}`} data-controller="comment subject mentions" data-subject-parent-value="{{ parent_comment_id }}" data-action="" style={borderStyle}>
@@ -83,19 +100,19 @@ const CommentBlock = ({ comment, level, user }) => {
                                 </a>
                             </li>
                             <li>
-                                <form action={`/reply_delete/${comment.id}/${comment.thread_id}`} method="post">
-                                    <button type="submit">
+                               
+                                    <button type="submit" onClick={() => handleDeleteReply(comment.id)}>
                                         Delete
                                     </button>
-                                </form>
+                                
                             </li>
                         </>
                     )}
                 </menu>
             </footer>
 
-            {comment.replies && comment.replies.length > 0 &&
-                comment.replies.map(reply => 
+            {replies && replies.length > 0 &&
+                replies.map(reply => 
                 (reply.author === reply.user) && 
                 <CommentBlock 
                     key={reply.id} 
