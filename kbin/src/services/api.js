@@ -42,6 +42,23 @@ export const getComment = async (commentId) => {
   }
 };
 
+export const deleteComment = async (commentId) => {
+  try {
+    const response = await fetch(`${BASE_URL}/comments/${commentId}/`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Token ${API_KEY}`,
+      },
+    });
+    if (!response.ok) {
+      throw new Error('Failed to delete comment');
+    }
+  } catch (error) {
+    console.error('Error deleting comment:', error);
+    throw error;
+  }
+};
+
 export const getReply = async (replyId) => {
   try {
     const response = await fetch(`${BASE_URL}/replies/${replyId}/`, {
@@ -77,6 +94,23 @@ export const updateReply = async (replyId, replyData) => {
     return data;
   } catch (error) {
     console.error('Error updating reply:', error);
+    throw error;
+  }
+};
+
+export const deleteReply = async (replyId) => {
+  try {
+    const response = await fetch(`${BASE_URL}/replies/${replyId}/`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Token ${API_KEY}`,
+      },
+    });
+    if (!response.ok) {
+      throw new Error('Failed to delete reply');
+    }
+  } catch (error) {
+    console.error('Error deleting reply:', error);
     throw error;
   }
 };
