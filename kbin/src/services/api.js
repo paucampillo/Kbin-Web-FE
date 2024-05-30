@@ -532,11 +532,13 @@ export const updateProfile = async (userId, profileData) => {
   }
 };
 
-export const search = async (query) => {
+export const search = async (query, orderBy = 'newest') => {
   try {
-    const response = await fetch(`${BASE_URL}/search/?query=${query}`, {
-      params: {
-        q: query
+    const response = await fetch(`${BASE_URL}/search/?query=${query}&order_by=${orderBy}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${API_KEY}`, // Replace YOUR_API_KEY with actual API key
       },
     });
     if (!response.ok) {
