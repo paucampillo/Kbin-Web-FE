@@ -26,18 +26,13 @@ const CommentBlock = ({ comment, level, user, fetchComments }) => {
 
     const handleLikeReply = async (reply_id) => {
         try {
-            let replyData = await getReply(reply_id);
-            console.log('Reply data:', replyData);
-            if (replyData.user_has_liked) {
+            if (comment.user_has_liked) {
                 await unlikeReply(reply_id);
-                console.log('Reply unliked successfully', reply_id);
+                setReplies(replies.map(reply => reply.id === reply_id ? { ...reply, user_has_liked: false } : reply));
             } else {
                 await likeReply(reply_id);
-                console.log('Reply liked successfully', reply_id);
+                setReplies(replies.map(reply => reply.id === reply_id ? { ...reply, user_has_liked: true } : reply));
             }
-            console.log('Replies:', replyData);
-            const updatedReplyData = await getReply(reply_id);
-            setReplies(replies.map(reply => reply.id === reply_id ? updatedReplyData : reply));
             fetchComments();
         } catch (error) {
             console.error('Error liking reply:', reply_id, error);
@@ -46,18 +41,13 @@ const CommentBlock = ({ comment, level, user, fetchComments }) => {
 
     const handleDislikeReply = async (reply_id) => {
         try {
-            const replyData = await getReply(reply_id);
-            console.log('Reply data:', replyData);
-            if (replyData.user_has_disliked) {
+            if (comment.user_has_disliked) {
                 await undislikeReply(reply_id);
-                console.log('Reply undisliked successfully', reply_id);
+                setReplies(replies.map(reply => reply.id === reply_id ? { ...reply, user_has_disliked: false } : reply));
             } else {
                 await dislikeReply(reply_id);
-                console.log('Reply disliked successfully', reply_id);
+                setReplies(replies.map(reply => reply.id === reply_id ? { ...reply, user_has_disliked: true } : reply));
             }
-            console.log('Replies:', replyData);
-            const updatedReplyData = await getReply(reply_id);
-            setReplies(replies.map(reply => reply.id === reply_id ? updatedReplyData : reply));
             fetchComments();
         } catch (error) {
             console.error('Error disliking reply:', reply_id, error);
