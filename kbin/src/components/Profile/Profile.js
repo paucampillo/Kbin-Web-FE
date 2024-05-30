@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
-import { getUserInfo, getUserThreads, getUserBoosts, getUserComments, deleteComment } from '../../services/api'; // Ajusta la importación según tu estructura de archivos
+import { getUserInfo, getUserThreads, getUserBoosts, getUserComments, deleteComment, likeComment, getComment, unlikeComment, undislikeComment, dislikeComment } from '../../services/api'; // Ajusta la importación según tu estructura de archivos
 import UserHeader from './UserHeader';
 import OptionsMenu from './OptionsMenu';
 import Menu from '../Threads/Menu';
@@ -50,7 +50,7 @@ const UserProfile = () => {
     try {
       const profileThreads = await getUserThreads(userId, filter, order);
       const profileBoosts = await getUserBoosts(userId);
-      const profileComments = await getUserComments(userId);
+      //const profileComments = await getUserComments(userId);
 
       const threadsWithTime = profileThreads.map(thread => ({
         ...thread,
@@ -61,7 +61,7 @@ const UserProfile = () => {
 
       setThreads(threadsWithTime);
       setBoosts(profileBoosts);
-      setComments(profileComments);
+      //setComments(profileComments);
     } catch (error) {
       setError('Failed to fetch threads');
     }
@@ -81,6 +81,37 @@ const UserProfile = () => {
       console.error('Error deleting comment:', error);
     }
   };
+  const handleLikeComment = async (comment_id) => {
+    try {
+        let commentData = await getComment(comment_id);
+        if (commentData.user_has_liked) {
+            await unlikeComment(comment_id);
+            console.log('Comment unliked successfully');
+        } else {
+            await likeComment(comment_id);
+            console.log('Comment liked successfully');
+        }
+        fetchComments(orderBy);
+    } catch (error) {
+        console.error('Error liking comment:', error);
+    }
+};
+
+const handleDislikeComment = async (comment_id) => {
+    try {
+        const commentData = await getComment(comment_id);
+        if (commentData.user_has_disliked) {
+            await undislikeComment(comment_id);
+            console.log('Comment undisliked successfully');
+        } else {
+            await dislikeComment(comment_id);
+            console.log('Comment disliked successfully');
+        }
+        fetchComments(orderBy);
+    } catch (error) {
+        console.error('Error disliking comment:', error);
+    }
+};
 
   const fetchComments = useCallback(async (order) => {
     setError(null);
@@ -99,17 +130,18 @@ const UserProfile = () => {
           is_edited: isEdited(reply.created_at, reply.updated_at),
         })) : [],
       }));
-      setComments(commentsWithTime);
+      
 
       // Calcular el conteo total de comentarios y respuestas
       const totalCommentsCount = data.reduce((sum, comment) => {
         return sum + 1 + (comment.replies ? comment.replies.length : 0);
       }, 0);
       setCommentsCount(totalCommentsCount);
+      setComments(commentsWithTime);
     } catch (error) {
       setError('Failed to fetch comments');
     }
-  }, [userId]);
+  }, [orderBy]);
 
   useEffect(() => {
     fetchThreads();
@@ -176,15 +208,14 @@ const UserProfile = () => {
                           <React.Fragment key={comment.id}>
                             <blockquote className="section comment entry-comment subject comment-level--1" id={`entry-comment-${comment.id}`} data-controller="comment subject mentions" data-subject-parent-value="" data-action="">
                               <header>
-                                <a href={`/profile/${comment.author.id}`} className="user-inline" title={comment.author.username}>
-                                  {comment.author.username}
-                                </a>
-                                , <time className="timeago" title={comment.created_at}>{" "}{comment.time_since_creation}</time>
-                                {comment.is_edited && comment.created_at !== comment.updated_at && (
-                                  <span className="edited">
-                                    (edited <time className="timeago" title={comment.updated_at}>{comment.time_since_update} ago</time>)
-                                  </span>
-                                )}
+                              <a href={`/profile/${comment.author.id}/`} className="user-inline" title={comment.author.username}>
+                                                {comment.author.username}
+                                            </a>, <time className="timeago" title={comment.created_at} dateTime={comment.created_at}>{comment.time_since_creation}</time>
+                                            {comment.is_edited && comment.created_at !== comment.updated_at && (
+                                                <span className="edited">(edited <time className="timeago" title={comment.updated_at}>{comment.time_since_update} ago</time>)</span>
+                                            )}
+
+
                                 {comment.thread_id ? (
                                   <a href={`/thread/${comment.thread_id}`} className="magazine-inline">{" " + comment.thread_id + " "}</a>
                                 ) : (
@@ -206,19 +237,16 @@ const UserProfile = () => {
                                 <p>{comment.body}</p>
                               </div>
                               <aside className="vote">
-                                <form method="post" action={`/reply_vote/${comment.id}`} className="vote__up">
-                                  <button type="submit" title="Favorite" aria-label="Favorite">
-                                    <span>{comment.num_likes}</span>
-                                    <span role="img" aria-label="thumb-up">&#128077;</span>
-                                  </button>
-                                </form>
-                                <form method="post" action={`/reply_vote/${comment.id}`} className="vote__down">
-                                  <button type="submit" title="Reduce" aria-label="Reduce">
-                                    <span>{comment.num_dislikes}</span>
-                                    <span role="img" aria-label="thumb-down">&#128078;</span>
-                                  </button>
-                                </form>
-                              </aside>
+                                            <button className="vote__up" onClick={() => handleLikeComment(comment.id)} title="Favorite" aria-label="Favorite">
+                                                <span style={{ color: comment.user_has_liked ? '#13F30B' : 'inherit' }}>{comment.num_likes}</span>
+                                                <span role="img" aria-label="thumbs up">👍</span>
+                                            </button>
+
+                                            <button className="vote__down" onClick={() => handleDislikeComment(comment.id)} title="Reduce" aria-label="Reduce">
+                                                <span style={{ color: comment.user_has_disliked ? '#F30B0B' : 'inherit' }}>{comment.num_dislikes}</span>
+                                                <span role="img" aria-label="thumbs down">👎</span>
+                                            </button>
+                                        </aside>
                               <footer>
                                 <menu>
                                   <li>
