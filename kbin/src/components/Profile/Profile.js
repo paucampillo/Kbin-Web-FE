@@ -266,7 +266,7 @@ const handleDislikeComment = async (comment_id) => {
                               </footer>
                             </blockquote>
                             {comment.replies && comment.replies.length > 0 && comment.replies.map(reply => (
-                                        <CommentBlock key={reply.id} comment={reply} level={reply.reply_level + 1} user={user} parentReply={reply.parent_reply_id} profileView={false} fetchComments={fetchComments}/>
+                                        <CommentBlock key={reply.id} comment={reply} level={reply.reply_level + 1} user={user} parentReply={reply.parent_reply_id} profileView={false} fetchComments={fetchComments} orderBy={orderBy}/>
                                     ))}
                                 </React.Fragment>
                             ))}

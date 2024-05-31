@@ -3,7 +3,7 @@
 import Cookies from 'js-cookie';
 
 const BASE_URL = 'http://127.0.0.1:8000/api';
-const API_KEY = '2dab9c15f41ab219cc435c4d2f95162aa39c4841';
+const API_KEY = '8ae00cc42060e8f25814474f6a47ed7d2c865461';
 
 // Function to fetch comments for a thread
 export const getComments = async (threadId, orderBy = 'newest') => {
