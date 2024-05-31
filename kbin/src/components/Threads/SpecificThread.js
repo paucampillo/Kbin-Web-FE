@@ -2,11 +2,11 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import Thread from './Thread';
 import CommentBlock from './CommentBlock';
-import { getThread, getComments, createComment, deleteComment, deleteReply } from '../../services/api';
+import { getThread, getComments, createComment, deleteComment, likeComment, getComment, unlikeComment, undislikeComment, dislikeComment } from '../../services/api';
 
 const user = {
     id: 1,
-    username: 'haonan',
+    username: 'pau',
     isAuthenticated: true,
 };
 
@@ -50,6 +50,7 @@ const SpecificThread = () => {
                     is_edited: isEdited(reply.created_at, reply.updated_at),
                 })) : [],
             }));
+
             setComments(commentsWithTime);
         } catch (error) {
             setError('Failed to fetch comments');
@@ -91,7 +92,37 @@ const SpecificThread = () => {
         }
     };
 
+    const handleLikeComment = async (comment_id) => {
+        try {
+            let commentData = await getComment(comment_id);
+            if (commentData.user_has_liked) {
+                await unlikeComment(comment_id);
+                console.log('Comment unliked successfully');
+            } else {
+                await likeComment(comment_id);
+                console.log('Comment liked successfully');
+            }
+            fetchComments(orderBy);
+        } catch (error) {
+            console.error('Error liking comment:', error);
+        }
+    };
 
+    const handleDislikeComment = async (comment_id) => {
+        try {
+            const commentData = await getComment(comment_id);
+            if (commentData.user_has_disliked) {
+                await undislikeComment(comment_id);
+                console.log('Comment undisliked successfully');
+            } else {
+                await dislikeComment(comment_id);
+                console.log('Comment disliked successfully');
+            }
+            fetchComments(orderBy);
+        } catch (error) {
+            console.error('Error disliking comment:', error);
+        }
+    };
 
     if (error) {
         return <div>{error}</div>;
@@ -161,19 +192,15 @@ const SpecificThread = () => {
                                         </div>
 
                                         <aside className="vote">
-                                            <form method="post" action={`/reply_vote/${comment.id}`} className="vote__up">
-                                                <button type="submit" title="Favorite" aria-label="Favorite">
-                                                    <span>{comment.num_likes}</span>
-                                                    <span role="img" aria-label="thumb-up">&#128077;</span>
-                                                </button>
-                                            </form>
+                                            <button className="vote__up" onClick={() => handleLikeComment(comment.id)} title="Favorite" aria-label="Favorite">
+                                                <span style={{ color: comment.user_has_liked ? '#13F30B' : 'inherit' }}>{comment.num_likes}</span>
+                                                <span role="img" aria-label="thumbs up">👍</span>
+                                            </button>
 
-                                            <form method="post" action={`/reply_vote/${comment.id}`} className="vote__down">
-                                                <button type="submit" title="Reduce" aria-label="Reduce">
-                                                    <span>{comment.num_dislikes}</span>
-                                                    <span role="img" aria-label="thumb-down">&#128078;</span>
-                                                </button>
-                                            </form>
+                                            <button className="vote__down" onClick={() => handleDislikeComment(comment.id)} title="Reduce" aria-label="Reduce">
+                                                <span style={{ color: comment.user_has_disliked ? '#F30B0B' : 'inherit' }}>{comment.num_dislikes}</span>
+                                                <span role="img" aria-label="thumbs down">👎</span>
+                                            </button>
                                         </aside>
 
                                         <footer>
@@ -195,7 +222,7 @@ const SpecificThread = () => {
                                         </footer>
                                     </blockquote>
                                     {comment.replies && comment.replies.length > 0 && comment.replies.map(reply => (
-                                        <CommentBlock key={reply.id} comment={reply} level={reply.reply_level + 1} user={user} parentReply={reply.parent_reply_id} profileView={false} fetchComments={fetchComments}/>
+                                        <CommentBlock key={reply.id} comment={reply} level={reply.reply_level + 1} user={user} parentReply={reply.parent_reply_id} profileView={false} fetchComments={fetchComments} orderBy={orderBy}/>
                                     ))}
                                 </React.Fragment>
                             ))}
