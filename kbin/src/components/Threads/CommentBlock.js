@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { deleteReply, getComments } from '../../services/api'; // Asegúrate de importar getComments desde el lugar correcto
+import { deleteReply, getComments, likeReply, unlikeReply, dislikeReply, undislikeReply } from '../../services/api';
 
-const CommentBlock = ({ comment, level, user, fetchComments }) => {
+const CommentBlock = ({ comment, level, user, fetchComments, orderBy }) => {
 
     const [replies, setReplies] = useState(comment.replies || []);
     const borderStyle = level > 10 ? { borderLeft: '1px solid #7e8f99', marginLeft: `calc(${level} * 1rem)` } : {};
@@ -10,19 +10,49 @@ const CommentBlock = ({ comment, level, user, fetchComments }) => {
         setReplies(comment.replies || []);
     }, [comment.replies]);
 
+
     const handleDeleteReply = async (reply_id) => {
         try {
             await deleteReply(reply_id);
             console.log('Reply deleted successfully');
-            const updatedComments = await getComments(comment.thread_id, 'top', user.isAuthenticated); // Corrige el orden en el que se pasan los parámetros
-            setReplies(updatedComments);
+            const updatedComments = await getComments(comment.thread_id, 'top', user.isAuthenticated);
+            const updatedComment = updatedComments.find(c => c.id === comment.id);
+            setReplies(updatedComment ? updatedComment.replies : []);
             await fetchComments();
-        }
-        catch (error) {
+        } catch (error) {
             console.error('Error deleting reply:', error);
         }
     };
 
+    const handleLikeReply = async (reply_id) => {
+        try {
+            if (comment.user_has_liked) {
+                await unlikeReply(reply_id);
+                setReplies(replies.map(reply => reply.id === reply_id ? { ...reply, user_has_liked: false } : reply));
+            } else {
+                await likeReply(reply_id);
+                setReplies(replies.map(reply => reply.id === reply_id ? { ...reply, user_has_liked: true } : reply));
+            }
+            fetchComments(orderBy);
+        } catch (error) {
+            console.error('Error liking reply:', reply_id, error);
+        }
+    };
+
+    const handleDislikeReply = async (reply_id) => {
+        try {
+            if (comment.user_has_disliked) {
+                await undislikeReply(reply_id);
+                setReplies(replies.map(reply => reply.id === reply_id ? { ...reply, user_has_disliked: false } : reply));
+            } else {
+                await dislikeReply(reply_id);
+                setReplies(replies.map(reply => reply.id === reply_id ? { ...reply, user_has_disliked: true } : reply));
+            }
+            fetchComments(orderBy);
+        } catch (error) {
+            console.error('Error disliking reply:', reply_id, error);
+        }
+    };
 
     return (
         <blockquote className={`section comment entry-comment subject comment-level--${level} comment-has-children`} id={`entry-comment-${comment.id}`} data-controller="comment subject mentions" data-subject-parent-value="{{ parent_comment_id }}" data-action="" style={borderStyle}>
@@ -30,10 +60,10 @@ const CommentBlock = ({ comment, level, user, fetchComments }) => {
                 <a href={`/profile/${comment.author.id}/`} className="user-inline" title={comment.author.username}>
                     {comment.author.username}
                 </a>
-                , <time className="timeago" title={comment.created_at} dateTime={comment.created_at}>{ comment.time_since_creation }</time>
+                , <time className="timeago" title={comment.created_at} dateTime={comment.created_at}>{comment.time_since_creation}</time>
                 {comment.is_edited && (
                     <span className="edited">
-                         (edited <time className="timeago" title={comment.updated_at}>{comment.time_since_update}</time>)
+                        (edited <time className="timeago" title={comment.updated_at}>{comment.time_since_update}</time>)
                     </span>
                 )}
             </header>
@@ -49,19 +79,15 @@ const CommentBlock = ({ comment, level, user, fetchComments }) => {
             </div>
 
             <aside className="vote">
-                <form method="post" action={`/reply_vote/${comment.id}`} className="vote__up">
-                    <button type="submit" title="Favorite" aria-label="Favorite">
-                        <span>{comment.num_likes}</span>
-                        <span role="img" aria-label="thumb-up">&#128077;</span>
-                    </button>
-                </form>
+                <button className="vote__up" onClick={() => handleLikeReply(comment.id)} title="Favorite" aria-label="Favorite">
+                    <span style={{ color: comment.user_has_liked ? '#13F30B' : 'inherit' }}>{comment.num_likes}</span>
+                    <span role="img" aria-label="thumbs up">👍</span>
+                </button>
 
-                <form method="post" action={`/reply_vote/${comment.id}`} className="vote__down">
-                    <button type="submit" title="Reduce" aria-label="Reduce">
-                        <span>{comment.num_dislikes}</span>
-                        <span role="img" aria-label="thumb-down">&#128078;</span>
-                    </button>
-                </form>
+                <button className="vote__down" onClick={() => handleDislikeReply(comment.id)} title="Reduce" aria-label="Reduce">
+                    <span style={{ color: comment.user_has_disliked ? '#F30B0B' : 'inherit' }}>{comment.num_dislikes}</span>
+                    <span role="img" aria-label="thumbs down">👎</span>
+                </button>
             </aside>
 
             <footer>
@@ -79,11 +105,9 @@ const CommentBlock = ({ comment, level, user, fetchComments }) => {
                                 </a>
                             </li>
                             <li>
-                               
-                                    <button type="submit" onClick={() => handleDeleteReply(comment.id)}>
-                                        Delete
-                                    </button>
-                                
+                                <button type="submit" onClick={() => handleDeleteReply(comment.id)}>
+                                    Delete
+                                </button>
                             </li>
                         </>
                     )}
@@ -91,16 +115,18 @@ const CommentBlock = ({ comment, level, user, fetchComments }) => {
             </footer>
 
             {replies && replies.length > 0 &&
-                replies.map(reply => 
-                (reply.author === reply.user) && 
-                <CommentBlock 
-                    key={reply.id} 
-                    comment={reply} 
-                    level={level + 1} 
-                    parentCommentId={comment.id} 
-                    user={user}
-                />
-            )}
+                replies.map(reply => (
+                    <CommentBlock 
+                        key={reply.id} 
+                        comment={reply} 
+                        level={level + 1} 
+                        parentCommentId={comment.id} 
+                        user={user}
+                        fetchComments={fetchComments}
+                        orderBy={orderBy}
+                    />
+                ))
+            }
         </blockquote>
     );
 };

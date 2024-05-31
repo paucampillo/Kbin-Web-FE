@@ -3,7 +3,7 @@
 import Cookies from 'js-cookie';
 
 const BASE_URL = 'http://127.0.0.1:8000/api';
-const API_KEY = '8ae00cc42060e8f25814474f6a47ed7d2c865461';
+const API_KEY = '2dab9c15f41ab219cc435c4d2f95162aa39c4841';
 
 // Function to fetch comments for a thread
 export const getComments = async (threadId, orderBy = 'newest') => {
@@ -582,6 +582,168 @@ export const deleteThread = async (threadId) => {
     throw error;
   }
 };
+
+export const likeComment = async (commentId) => {
+  try {
+    const response = await fetch(`${BASE_URL}/comments/${commentId}/likes/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${API_KEY}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to like comment');
+    }
+
+  } catch (error) {
+    console.error('Error liking comment:', error);
+    throw error;
+  }
+};
+
+export const dislikeComment = async (commentId) => {
+  try {
+    const response = await fetch(`${BASE_URL}/comments/${commentId}/dislikes/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${API_KEY}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to dislike comment');
+    }
+
+  } catch (error) {
+    console.error('Error disliking comment: ',error);
+    throw error;
+  }
+};
+
+export const unlikeComment = async (commentId) => {
+  try {
+    const response = await fetch(`${BASE_URL}/comments/${commentId}/likes/`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${API_KEY}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to like comment');
+    }
+
+  } catch (error) {
+    console.error('Error unliking comment:', error);
+    throw error;
+  }
+};
+
+export const undislikeComment = async (commentId) => {
+  try {
+    const response = await fetch(`${BASE_URL}/comments/${commentId}/dislikes/`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${API_KEY}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to dislike comment');
+    }
+
+  } catch (error) {
+    console.error('Error undisliking comment:', error);
+    throw error;
+  }
+};
+
+
+export const likeReply = async (replyId) => {
+  try {
+    const response = await fetch(`${BASE_URL}/replies/${replyId}/likes/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${API_KEY}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to like reply');
+    }
+
+  } catch (error) {
+    console.error('Error liking reply: ',error);
+    throw error;
+  }
+};
+
+export const dislikeReply = async (replyId) => {
+  try {
+    const response = await fetch(`${BASE_URL}/replies/${replyId}/dislikes/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${API_KEY}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to dislike reply');
+    }
+
+  } catch (error) {
+    console.error('Error disliking reply: ',error);
+    throw error;
+  }
+};
+
+export const unlikeReply = async (replyId) => {
+  try {
+    const response = await fetch(`${BASE_URL}/replies/${replyId}/likes/`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${API_KEY}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to like reply');
+    }
+
+  } catch (error) {
+    console.error('Error unliking reply:', error);
+    throw error;
+  }
+};
+
+export const undislikeReply = async (replyId) => {
+  try {
+    const response = await fetch(`${BASE_URL}/replies/${replyId}/dislikes/`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${API_KEY}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to dislike reply');
+    }
+    
+  } catch (error) {
+    console.error('Error undisliking reply:', error);
+    throw error;
+  }
+};
+
 
 
 // Function boost a thread
