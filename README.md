@@ -11,4 +11,4 @@ Miembros:
 https://tree.taiga.io/project/yudalegend-asw-project/timeline
 
 # Deploy:
-https://kbin-for-react.vercel.app/
+https://kbinreact.vercel.app/threads
